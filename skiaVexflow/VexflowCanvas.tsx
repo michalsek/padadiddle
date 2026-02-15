@@ -85,10 +85,16 @@ function createVexflowPicture(
   return recorder.finishRecordingAsPicture();
 }
 
-export default function VexflowCanvas({ onDraw, width, height = CANVAS_HEIGHT }: VexflowCanvasProps) {
+export default function VexflowCanvas({
+  onDraw,
+  width,
+  height = CANVAS_HEIGHT,
+}: VexflowCanvasProps) {
   const { width: windowWidth } = useWindowDimensions();
   const canvasWidth = width ?? Math.max(300, Math.floor(windowWidth) - 32);
   const bravuraFont = useFont(require('@/assets/fonts/Bravura.otf'), 30);
+
+  console.log('VexflowCanvas render', { canvasWidth, height });
 
   const pictureInfo = useMemo(() => {
     if (!bravuraFont) return null;

@@ -29,8 +29,12 @@ type RenderState = {
   font: string;
 };
 
+const isWarnDisabled = true;
+
 function notImplemented(methodName: string): void {
-  console.warn(`SkiaVexflowContext: ${methodName} is not implemented yet.`);
+  if (!isWarnDisabled) {
+    console.warn(`SkiaVexflowContext: ${methodName} is not implemented yet.`);
+  }
 }
 
 export default class SkiaVexflowContext implements VexflowRenderContext {

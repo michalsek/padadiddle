@@ -21,6 +21,7 @@ export type VisualCase = {
   description?: string;
   canvasWidth?: number;
   canvasHeight?: number;
+  beforeDraw?: (args: VexflowCanvasDrawArgs) => void;
   draw: (args: VexflowCanvasDrawArgs) => void;
 };
 
@@ -116,7 +117,8 @@ export const ACCIDENTAL_VISUAL_CASES: VisualCase[] = [
     id: 'accidentals-simple-tests',
     title: 'Accidentals - Simple Tests',
     description: 'Visualized from autoAccidentalWorking() sequences',
-    canvasWidth: 1000,
+    // canvasWidth: 1000,
+    canvasHeight: 280,
     draw: ({ ctx, width }) => {
       const make = (keys: string[]) => keys.map((key) => buildNote({ keys: [key], duration: '4' }));
 
@@ -157,12 +159,11 @@ export const ACCIDENTAL_VISUAL_CASES: VisualCase[] = [
       new Formatter().joinVoices([voiceC]).formatToStave([voiceC], staveC);
       voiceC.draw(ctx as any, staveC);
     },
-    canvasHeight: 260,
   },
   {
     id: 'bounding-box',
     title: 'Bounding Box',
-    canvasWidth: 900,
+    canvasWidth: 500,
     draw: ({ ctx, width }) => {
       const notes = [
         buildNote({ keys: ['c/4', 'e/4', 'a/4'], duration: '1' }, [
@@ -204,7 +205,7 @@ export const ACCIDENTAL_VISUAL_CASES: VisualCase[] = [
     id: 'accidental-padding',
     title: 'Accidental Padding',
     description: 'RN-safe approximation (without dot/beam helper internals)',
-    canvasWidth: 1000,
+    canvasWidth: 700,
     draw: ({ ctx, width }) => {
       const notes = [
         buildNote({ keys: ['e##/5'], duration: '8' }, [{ type: '##', index: 0 }]),
@@ -242,7 +243,7 @@ export const ACCIDENTAL_VISUAL_CASES: VisualCase[] = [
   {
     id: 'basic',
     title: 'Basic',
-    canvasWidth: 900,
+    canvasWidth: 400,
     draw: ({ ctx, width }) => {
       const notes = [
         buildNote({ keys: ['c/4', 'e/4', 'a/4'], duration: '1' }, [
@@ -282,7 +283,6 @@ export const ACCIDENTAL_VISUAL_CASES: VisualCase[] = [
   {
     id: 'stem-down',
     title: 'Stem Down',
-    canvasWidth: 900,
     draw: ({ ctx, width }) => {
       const notes = [
         buildNote({ keys: ['c/4', 'e/4', 'a/4'], duration: 'w', stemDirection: -1 }, [
@@ -358,7 +358,7 @@ export const ACCIDENTAL_VISUAL_CASES: VisualCase[] = [
   {
     id: 'special-cases',
     title: 'Accidental Arrangement Special Cases',
-    canvasWidth: 900,
+    canvasWidth: 500,
     draw: ({ ctx, width }) => {
       const notes = [
         buildNote({ keys: ['f/4', 'd/5'], duration: '1' }, [
@@ -399,7 +399,7 @@ export const ACCIDENTAL_VISUAL_CASES: VisualCase[] = [
   {
     id: 'multi-voice',
     title: 'Multi Voice',
-    canvasWidth: 900,
+    canvasWidth: 500,
     canvasHeight: 240,
     draw: ({ ctx, width }) => {
       const stave = new Stave(16, 50, width - 32).addClef('treble');
