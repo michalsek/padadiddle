@@ -1,44 +1,52 @@
-import type { Theme } from './types';
+import type { Theme, ThemeName } from './types';
 
 /**
- * Shared text token baseline used across themes.
+ * Creates a fresh text token object for a single theme instance.
  * Input: none.
- * Output: typography token defaults reused by both light and dark themes.
+ * Output: a new `Theme['text']` object with independent nested references (`size`, `lineHeight`).
+ * Logic summary:
+ * - Returns a new object tree each time to prevent cross-theme mutation coupling.
  */
-const baseTextTokens: Theme['text'] = {
-  fontFamily: 'System',
-  fontFamilyMedium: 'System',
-  fontFamilyBold: 'System',
-  size: {
-    xs: 12,
-    sm: 14,
-    md: 16,
-    lg: 20,
+function createTextTokens(): Theme['text'] {
+  return {
+    fontFamily: 'System',
+    fontFamilyMedium: 'System',
+    fontFamilyBold: 'System',
+    size: {
+      xs: 12,
+      sm: 14,
+      md: 16,
+      lg: 20,
+      xl: 24,
+    },
+    lineHeight: {
+      xs: 16,
+      sm: 20,
+      md: 22,
+      lg: 28,
+      xl: 32,
+    },
+  };
+}
+
+/**
+ * Creates a fresh spacing token object for a single theme instance.
+ * Input: none.
+ * Output: a new `Theme['spacing']` object with independent references.
+ * Logic summary:
+ * - Returns a new object each call so theme mutations cannot leak across theme variants.
+ */
+function createSpacingTokens(): Theme['spacing'] {
+  return {
+    none: 0,
+    xs: 4,
+    sm: 8,
+    md: 12,
+    lg: 16,
     xl: 24,
-  },
-  lineHeight: {
-    xs: 16,
-    sm: 20,
-    md: 22,
-    lg: 28,
-    xl: 32,
-  },
-};
-
-/**
- * Shared spacing token baseline used across themes.
- * Input: none.
- * Output: spacing scale that maps directly to React Native style dimensions.
- */
-const baseSpacingTokens: Theme['spacing'] = {
-  none: 0,
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 24,
-  xxl: 32,
-};
+    xxl: 32,
+  };
+}
 
 /**
  * Light theme token set.
@@ -55,8 +63,8 @@ export const lightTheme: Theme = {
     accent: '#0BA5EC',
     danger: '#D92D20',
   },
-  text: baseTextTokens,
-  spacing: baseSpacingTokens,
+  text: createTextTokens(),
+  spacing: createSpacingTokens(),
 };
 
 /**
@@ -74,8 +82,8 @@ export const darkTheme: Theme = {
     accent: '#53B1FD',
     danger: '#FDA29B',
   },
-  text: baseTextTokens,
-  spacing: baseSpacingTokens,
+  text: createTextTokens(),
+  spacing: createSpacingTokens(),
 };
 
 /**
@@ -86,4 +94,4 @@ export const darkTheme: Theme = {
 export const themes = {
   light: lightTheme,
   dark: darkTheme,
-} as const;
+} satisfies Record<ThemeName, Theme>;
