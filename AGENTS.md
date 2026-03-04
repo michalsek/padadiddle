@@ -18,6 +18,7 @@ The project layout reflects logical boundaries for screens, shared UI, rendering
 - If dependency install/fetch is required and sandbox blocks it, request an escalated command immediately instead of implementing import/path workarounds.
 - Prefer requesting reusable approval prefixes for install flows: `["npx","expo","install"]`, `["yarn","add"]`, `["npx","expo","prebuild"]`.
 - After adding native modules (example: `expo-file-system`, `react-native-mmkv`), run `yarn prebuild` before expecting runtime availability.
+- After install, verify dependency version integrity using `npx expo-doctor`
 
 ## Architecture & directories
 
