@@ -481,15 +481,6 @@ function createColorTokens(themeName: ThemeName): Theme['colors'] {
     textSecondary: palette.text.secondary,
     accent: palette.text.accent,
     danger: palette.danger,
-    legacy: {
-      background: palette.background.canvas,
-      surface: palette.background.surface,
-      textPrimary: palette.text.primary,
-      textSecondary: palette.text.secondary,
-      border: palette.border.default,
-      accent: palette.text.accent,
-      danger: palette.danger,
-    },
   };
 }
 
@@ -498,7 +489,7 @@ function createColorTokens(themeName: ThemeName): Theme['colors'] {
  * Input parameters:
  * - `themeName`: requested color scheme.
  * Output:
- * - Fully populated `Theme` object including semantic and legacy token surfaces.
+ * - Fully populated `Theme` object including semantic tokens and migration aliases.
  * Logic summary:
  * - Aggregates all token factories so light/dark themes stay structurally aligned.
  */

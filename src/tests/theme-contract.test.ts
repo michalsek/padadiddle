@@ -32,12 +32,6 @@ describe('theme contract', () => {
       expect(theme.colors.textPrimary).toBe(theme.colors.text.primary);
       expect(theme.colors.textSecondary).toBe(theme.colors.text.secondary);
       expect(theme.colors.accent).toBe(theme.colors.text.accent);
-
-      expect(theme.colors.legacy.background).toBe(theme.colors.background.canvas);
-      expect(theme.colors.legacy.surface).toBe(theme.colors.background.surface);
-      expect(theme.colors.legacy.textPrimary).toBe(theme.colors.text.primary);
-      expect(theme.colors.legacy.textSecondary).toBe(theme.colors.text.secondary);
-      expect(theme.colors.legacy.border).toBe(theme.colors.border.default);
     }
   });
 

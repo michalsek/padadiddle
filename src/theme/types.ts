@@ -83,8 +83,8 @@ type ThemeProgressBarColors = {
  * - Foundation groups (`background`, `text`, `border`, `line`) serve as reusable
  *   primitives.
  * - `control` and `component` groups provide component-level semantics.
- * - `legacy` mirrors the pre-migration shape, including old `background` and
- *   `border` scalar aliases that now map to canonical semantic values.
+ * - Top-level alias fields (`surface`, `textPrimary`, etc.) remain available for
+ *   in-flight migration callers.
  */
 export type ThemeColors = {
   background: {
@@ -174,15 +174,6 @@ export type ThemeColors = {
   textSecondary: string;
   accent: string;
   danger: string;
-  legacy: {
-    background: string;
-    surface: string;
-    textPrimary: string;
-    textSecondary: string;
-    border: string;
-    accent: string;
-    danger: string;
-  };
 };
 
 /**
