@@ -7,7 +7,7 @@
  * - Restores real timers to prevent fake-timer leakage between tests.
  */
 afterEach(() => {
-  jest.clearAllMocks();
+  jest.resetAllMocks();
   jest.restoreAllMocks();
   jest.useRealTimers();
 });
