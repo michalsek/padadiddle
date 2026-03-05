@@ -1,0 +1,11 @@
+export type SliderVariant = 'primary' | 'secondary' | 'ghost';
+
+export type SliderProps = {
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  onChange: (value: number) => void;
+  label?: string;
+  variant?: SliderVariant;
+};
