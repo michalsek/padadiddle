@@ -25,13 +25,9 @@ describe('theme contract', () => {
     }
   });
 
-  it('keeps migration aliases aligned with semantic source tokens', () => {
+  it('exposes semantic spacing keys only', () => {
     for (const theme of [lightTheme, darkTheme]) {
-      expect(theme.spacing.xxl).toBe(theme.spacing['2xl']);
-      expect(theme.colors.surface).toBe(theme.colors.background.surface);
-      expect(theme.colors.textPrimary).toBe(theme.colors.text.primary);
-      expect(theme.colors.textSecondary).toBe(theme.colors.text.secondary);
-      expect(theme.colors.accent).toBe(theme.colors.text.accent);
+      expect(theme.spacing['2xl']).toBe(32);
     }
   });
 

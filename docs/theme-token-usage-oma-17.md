@@ -25,5 +25,5 @@ Apply matching variant keys across slider/progress families (`primary | secondar
 
 ## Migration Notes
 
-- Migration aliases remain available on `theme.colors` (`surface`, `textPrimary`, `textSecondary`, `accent`, `danger`).
-- New components should avoid introducing additional legacy aliases and should consume semantic paths directly.
+- Legacy fallbacks were removed from the theme contract.
+- Components should consume semantic paths directly.

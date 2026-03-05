@@ -1,44 +1,13 @@
 type ThemeVariant = 'primary' | 'secondary' | 'ghost';
 
 /**
- * Core legacy typography contract kept for backward compatibility.
- * Input parameters:
- * - None.
- * Output:
- * - Typography values that mirror the original `theme.text` shape.
- * Logic summary:
- * - Existing consumers can keep reading `theme.text.*` while migrated components
- *   adopt `theme.typography.*` tokens introduced for the semantic schema.
- */
-export type ThemeText = {
-  fontFamily: string;
-  fontFamilyMedium: string;
-  fontFamilyBold: string;
-  size: {
-    xs: number;
-    sm: number;
-    md: number;
-    lg: number;
-    xl: number;
-  };
-  lineHeight: {
-    xs: number;
-    sm: number;
-    md: number;
-    lg: number;
-    xl: number;
-  };
-};
-
-/**
  * Theme spacing tokens for layout and control geometry.
  * Input parameters:
  * - None.
  * Output:
- * - New semantic spacing scale (`2xs` through `2xl`) plus legacy `xxl` alias.
+ * - Semantic spacing scale (`2xs` through `2xl`) for migrated UI components.
  * Logic summary:
- * - `xxl` remains available so in-flight migrations do not break while `2xl`
- *   becomes the canonical key for new UI components.
+ * - Keeps layout and component spacing values centralized under one typed map.
  */
 export type ThemeSpacing = {
   none: number;
@@ -49,7 +18,6 @@ export type ThemeSpacing = {
   lg: number;
   xl: number;
   '2xl': number;
-  xxl: number;
 };
 
 type ThemeButtonColors = {
@@ -73,18 +41,15 @@ type ThemeProgressBarColors = {
 };
 
 /**
- * Color contract combining semantic groups and migration aliases.
+ * Color contract combining semantic foundation and component groups.
  * Input parameters:
  * - None.
  * Output:
  * - Nested semantic tokens used by new `src/ui` components.
- * - Legacy aliases (`surface`, `textPrimary`, etc.) for transitional callers.
  * Logic summary:
  * - Foundation groups (`background`, `text`, `border`, `line`) serve as reusable
  *   primitives.
  * - `control` and `component` groups provide component-level semantics.
- * - Top-level alias fields (`surface`, `textPrimary`, etc.) remain available for
- *   in-flight migration callers.
  */
 export type ThemeColors = {
   background: {
@@ -169,11 +134,6 @@ export type ThemeColors = {
       muted: string;
     };
   };
-  surface: string;
-  textPrimary: string;
-  textSecondary: string;
-  accent: string;
-  danger: string;
 };
 
 /**
@@ -263,15 +223,14 @@ export type ThemeSize = {
 };
 
 /**
- * Main theme contract for migration and backward compatibility.
+ * Main semantic theme contract for migrated component implementations.
  * Input parameters:
  * - None.
  * Output:
- * - Complete semantic token surface plus legacy aliases used by existing call-sites.
+ * - Complete semantic token surface for colors, geometry, typography, and effects.
  * Logic summary:
  * - `colors`, `spacing`, `typography`, `radius`, `size`, `opacity`, and
  *   `elevation` support the migrated component layer.
- * - `text` is retained to keep pre-migration typography callers functioning.
  */
 export type Theme = {
   colors: ThemeColors;
@@ -286,7 +245,6 @@ export type Theme = {
   elevation: {
     menu: number;
   };
-  text: ThemeText;
 };
 
 export type ThemeName = 'light' | 'dark';

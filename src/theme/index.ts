@@ -8,7 +8,6 @@ export type {
   ThemeRadius,
   ThemeSize,
   ThemeSpacing,
-  ThemeText,
   ThemeTypography,
 } from './types';
 export { useStyles } from './useStyles';

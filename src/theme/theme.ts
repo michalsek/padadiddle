@@ -1,47 +1,15 @@
 import type { Theme, ThemeName } from './types';
 
 /**
- * Creates a fresh text token object for a single theme instance.
- * Input: none.
- * Output: a new `Theme['text']` object with independent nested references (`size`, `lineHeight`).
- * Logic summary:
- * - Returns a new object tree each time to prevent cross-theme mutation coupling.
- */
-function createTextTokens(): Theme['text'] {
-  return {
-    fontFamily: 'System',
-    fontFamilyMedium: 'System',
-    fontFamilyBold: 'System',
-    size: {
-      xs: 12,
-      sm: 14,
-      md: 16,
-      lg: 20,
-      xl: 24,
-    },
-    lineHeight: {
-      xs: 16,
-      sm: 20,
-      md: 22,
-      lg: 28,
-      xl: 32,
-    },
-  };
-}
-
-/**
  * Creates a fresh spacing token object for a single theme instance.
  * Input parameters:
  * - None.
  * Output:
- * - A new semantic spacing map with migration alias support (`xxl` -> `2xl`).
+ * - A semantic spacing map aligned with the OMA-16 schema.
  * Logic summary:
  * - Produces the OMA-16 spacing contract required by migrated components.
- * - Preserves `xxl` for in-flight callers until all usage is moved to `2xl`.
  */
 function createSpacingTokens(): Theme['spacing'] {
-  const twoXl = 32;
-
   return {
     none: 0,
     '2xs': 4,
@@ -50,8 +18,7 @@ function createSpacingTokens(): Theme['spacing'] {
     md: 12,
     lg: 14,
     xl: 16,
-    '2xl': twoXl,
-    xxl: twoXl,
+    '2xl': 32,
   };
 }
 
@@ -60,7 +27,7 @@ function createSpacingTokens(): Theme['spacing'] {
  * Input parameters:
  * - None.
  * Output:
- * - `Theme['radius']` object with semantic corner values and pill/full aliases.
+ * - `Theme['radius']` object with semantic corner values.
  * Logic summary:
  * - Centralizes geometric radius values so component tasks avoid hard-coded numbers.
  */
@@ -119,7 +86,7 @@ function createSizeTokens(): Theme['size'] {
  * Output:
  * - `Theme['typography']` map for body, label, heading, line-height, and weight roles.
  * Logic summary:
- * - Mirrors audited values from legacy components while exposing role-based keys.
+ * - Mirrors audited component values while exposing role-based keys.
  */
 function createTypographyTokens(): Theme['typography'] {
   return {
@@ -195,7 +162,6 @@ type ThemePalette = {
   progressBar: Theme['colors']['component']['progressBar'];
   dropDown: Theme['colors']['component']['dropDown'];
   bottomSheet: Theme['colors']['component']['bottomSheet'];
-  danger: string;
 };
 
 /**
@@ -206,7 +172,7 @@ type ThemePalette = {
  * - Normalized foundation/component colors used to build `Theme['colors']`.
  * Logic summary:
  * - Encapsulates all light/dark values in one place.
- * - Keeps `createColorTokens` focused on schema composition and alias wiring.
+ * - Keeps `createColorTokens` focused on schema composition.
  */
 function getThemePalette(themeName: ThemeName): ThemePalette {
   if (themeName === 'dark') {
@@ -308,7 +274,6 @@ function getThemePalette(themeName: ThemeName): ThemePalette {
         background: '#0b1220',
         borderTop: '#1f2937',
       },
-      danger: '#FDA29B',
     };
   }
 
@@ -410,19 +375,17 @@ function getThemePalette(themeName: ThemeName): ThemePalette {
       background: '#ffffff',
       borderTop: '#e2e8f0',
     },
-    danger: '#D92D20',
   };
 }
 
 /**
- * Creates the full semantic color token tree plus migration aliases.
+ * Creates the full semantic color token tree.
  * Input parameters:
  * - `themeName`: requested color scheme.
  * Output:
- * - `Theme['colors']` containing foundation, control, component, and alias tokens.
+ * - `Theme['colors']` containing foundation, control, and component semantic tokens.
  * Logic summary:
  * - Builds semantic groups first.
- * - Derives alias values from semantic sources so updates stay in sync.
  */
 function createColorTokens(themeName: ThemeName): Theme['colors'] {
   const palette = getThemePalette(themeName);
@@ -476,11 +439,6 @@ function createColorTokens(themeName: ThemeName): Theme['colors'] {
         muted: palette.text.muted,
       },
     },
-    surface: palette.background.surface,
-    textPrimary: palette.text.primary,
-    textSecondary: palette.text.secondary,
-    accent: palette.text.accent,
-    danger: palette.danger,
   };
 }
 
@@ -489,7 +447,7 @@ function createColorTokens(themeName: ThemeName): Theme['colors'] {
  * Input parameters:
  * - `themeName`: requested color scheme.
  * Output:
- * - Fully populated `Theme` object including semantic tokens and migration aliases.
+ * - Fully populated `Theme` object including semantic tokens for all categories.
  * Logic summary:
  * - Aggregates all token factories so light/dark themes stay structurally aligned.
  */
@@ -502,7 +460,6 @@ function createTheme(themeName: ThemeName): Theme {
     typography: createTypographyTokens(),
     opacity: createOpacityTokens(),
     elevation: createElevationTokens(),
-    text: createTextTokens(),
   };
 }
 

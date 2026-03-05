@@ -207,4 +207,4 @@ type Theme = {
 
 - Extend `src/theme/types.ts` with `radius`, `size`, `typography`, `opacity`, `elevation`, and nested `colors.component` groups above.
 - Populate both `lightTheme` and `darkTheme` in `src/theme/theme.ts` with this schema.
-- Keep existing top-level keys (`colors.background`, `colors.surface`, `colors.textPrimary`, etc.) available via aliases during migration to avoid breaking current consumers.
+- Remove legacy fallback aliases once migrated components consume semantic token paths.
