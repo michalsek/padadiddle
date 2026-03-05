@@ -1,5 +1,22 @@
 import { darkTheme, lightTheme, themes } from '../theme';
 
+function collectColorValues(value: unknown, output: string[] = []): string[] {
+  if (typeof value === 'string') {
+    output.push(value.toLowerCase());
+    return output;
+  }
+
+  if (value === null || typeof value !== 'object') {
+    return output;
+  }
+
+  for (const nestedValue of Object.values(value as Record<string, unknown>)) {
+    collectColorValues(nestedValue, output);
+  }
+
+  return output;
+}
+
 describe('theme contract', () => {
   it('provides the semantic token schema for light and dark themes', () => {
     for (const theme of [lightTheme, darkTheme]) {
@@ -34,5 +51,12 @@ describe('theme contract', () => {
   it('keeps typed theme registry aligned with exported instances', () => {
     expect(themes.light).toEqual(lightTheme);
     expect(themes.dark).toEqual(darkTheme);
+  });
+
+  it('keeps each theme color scheme within 12 unique colors', () => {
+    for (const theme of [lightTheme, darkTheme]) {
+      const uniqueColors = new Set(collectColorValues(theme.colors));
+      expect(uniqueColors.size).toBeLessThanOrEqual(12);
+    }
   });
 });
