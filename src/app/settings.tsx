@@ -1,8 +1,8 @@
-import { Href, useRouter } from 'expo-router';
-import { useCallback } from 'react';
-import { Button, FlatList, View } from 'react-native';
+import { Href, useRouter } from "expo-router";
+import { useCallback } from "react";
+import { Button, FlatList, View } from "react-native";
 
-import { Screen, Text } from '../ui';
+import { Screen, Text } from "../ui";
 
 type SettingsNavigationItem = {
   key: string;
@@ -38,18 +38,23 @@ export default function SettingsScreen() {
 
   const settingsNavigationItems: SettingsNavigationItem[] = [
     {
-      key: 'player',
-      label: 'Go to player',
+      key: "ui-storybook",
+      label: "Go to UI storybook",
+      getHref: () => "/ui-storybook",
+    },
+    {
+      key: "player",
+      label: "Go to player",
       getHref: () => `/player/${generateTmpId()}`,
     },
     {
-      key: 'editor-new',
-      label: 'Go to editor new',
-      getHref: () => '/editor/new',
+      key: "editor-new",
+      label: "Go to editor new",
+      getHref: () => "/editor/new",
     },
     {
-      key: 'editor',
-      label: 'Go to editor',
+      key: "editor",
+      label: "Go to editor",
       getHref: () => `/editor/${generateTmpId()}`,
     },
   ];
@@ -60,10 +65,15 @@ export default function SettingsScreen() {
         data={settingsNavigationItems}
         keyExtractor={(item) => item.key}
         contentContainerStyle={{ gap: 12 }}
-        ListHeaderComponent={<Text style={{ marginBottom: 12 }}>Navigate to a route</Text>}
+        ListHeaderComponent={
+          <Text style={{ marginBottom: 12 }}>Navigate to a route</Text>
+        }
         renderItem={({ item }) => (
           <View>
-            <Button title={item.label} onPress={() => navigateFromSettings(item.getHref())} />
+            <Button
+              title={item.label}
+              onPress={() => navigateFromSettings(item.getHref())}
+            />
           </View>
         )}
       />
