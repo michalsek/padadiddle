@@ -9,4 +9,5 @@ export type {
   ThemeSpacing,
   ThemeTypography,
 } from './types';
+export { useTheme } from './useTheme';
 export { useStyles } from './useStyles';
