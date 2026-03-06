@@ -19,6 +19,7 @@ describe('SettingsScreen', () => {
 
     render(<SettingsScreen />);
 
+    expect(screen.getByRole('button', { name: 'Go to UI storybook' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Go to player' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Go to editor new' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Go to editor' })).toBeTruthy();
@@ -38,16 +39,18 @@ describe('SettingsScreen', () => {
 
     render(<SettingsScreen />);
 
+    fireEvent.press(screen.getByRole('button', { name: 'Go to UI storybook' }));
     fireEvent.press(screen.getByRole('button', { name: 'Go to player' }));
     fireEvent.press(screen.getByRole('button', { name: 'Go to editor new' }));
     fireEvent.press(screen.getByRole('button', { name: 'Go to editor' }));
 
-    expect(dismissMock).toHaveBeenCalledTimes(3);
+    expect(dismissMock).toHaveBeenCalledTimes(4);
 
     jest.runAllTimers();
 
     const expectedId = FIXED_TIMESTAMP.toString(36);
-    expect(pushMock).toHaveBeenCalledTimes(3);
+    expect(pushMock).toHaveBeenCalledTimes(4);
+    expect(pushMock).toHaveBeenCalledWith('/ui-storybook');
     expect(pushMock).toHaveBeenCalledWith(`/player/${expectedId}`);
     expect(pushMock).toHaveBeenCalledWith('/editor/new');
     expect(pushMock).toHaveBeenCalledWith(`/editor/${expectedId}`);

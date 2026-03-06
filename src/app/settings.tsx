@@ -38,6 +38,11 @@ export default function SettingsScreen() {
 
   const settingsNavigationItems: SettingsNavigationItem[] = [
     {
+      key: 'ui-storybook',
+      label: 'Go to UI storybook',
+      getHref: () => '/ui-storybook',
+    },
+    {
       key: 'player',
       label: 'Go to player',
       getHref: () => `/player/${generateTmpId()}`,

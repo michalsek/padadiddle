@@ -31,6 +31,7 @@ export default function RootLayout() {
           presentation: 'modal',
         }}
       />
+      <Stack.Screen name="ui-storybook" options={{ title: 'UI Storybook' }} />
       <Stack.Screen name="player/[id]" options={{ title: 'Player' }} />
       <Stack.Screen name="editor/new" options={{ title: 'Editor New' }} />
       <Stack.Screen name="editor/[id]" options={{ title: 'Editor' }} />
