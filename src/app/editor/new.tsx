@@ -1,9 +1,13 @@
-import { Text } from 'react-native';
+import { Screen, Text } from '../../ui';
 
 /**
  * Editor creation entry screen.
  * This route is used as the dedicated "new editor" entry point.
  */
 export default function EditorNewScreen() {
-  return <Text>Editor New</Text>;
+  return (
+    <Screen>
+      <Text>Editor New</Text>
+    </Screen>
+  );
 }

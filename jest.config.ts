@@ -6,12 +6,12 @@ import type { Config } from 'jest';
  * Output: a typed Jest config object consumed by the Jest CLI.
  * Logic summary:
  * - Uses `jest-expo` preset for SDK-compatible transforms and runtime shims.
- * - Limits test discovery to `src/tests` so no tests are placed under `src/app`.
+ * - Discovers tests across `src` while keeping test files out of `src/app`.
  * - Enables coverage collection as report-only via explicit include/exclude globs.
  */
 const config: Config = {
   preset: 'jest-expo',
-  testMatch: ['<rootDir>/src/tests/**/*.test.ts', '<rootDir>/src/tests/**/*.test.tsx'],
+  testMatch: ['<rootDir>/src/**/*.test.ts', '<rootDir>/src/**/*.test.tsx'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
