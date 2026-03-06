@@ -1,50 +1,53 @@
 import type { Theme, ThemeName } from './types';
 
 /**
- * Creates a fresh text token object for a single theme instance.
- * Input: none.
- * Output: a new `Theme['text']` object with independent nested references (`size`, `lineHeight`).
- * Logic summary:
- * - Returns a new object tree each time to prevent cross-theme mutation coupling.
- */
-function createTextTokens(): Theme['text'] {
-  return {
-    fontFamily: 'System',
-    fontFamilyMedium: 'System',
-    fontFamilyBold: 'System',
-    size: {
-      xs: 12,
-      sm: 14,
-      md: 16,
-      lg: 20,
-      xl: 24,
-    },
-    lineHeight: {
-      xs: 16,
-      sm: 20,
-      md: 22,
-      lg: 28,
-      xl: 32,
-    },
-  };
-}
-
-/**
  * Creates a fresh spacing token object for a single theme instance.
  * Input: none.
- * Output: a new `Theme['spacing']` object with independent references.
+ * Output: a new constrained `Theme['spacing']` object.
  * Logic summary:
- * - Returns a new object each call so theme mutations cannot leak across theme variants.
+ * - Returns the six-level spacing scale used by shared layout primitives.
  */
 function createSpacingTokens(): Theme['spacing'] {
   return {
-    none: 0,
-    xs: 4,
+    '2sm': 4,
     sm: 8,
     md: 12,
     lg: 16,
     xl: 24,
-    xxl: 32,
+    '2xl': 32,
+  };
+}
+
+/**
+ * Creates a fresh radius token object for a single theme instance.
+ * Input: none.
+ * Output: a new constrained `Theme['radius']` object.
+ * Logic summary:
+ * - Standardizes shared corner radii while keeping fully rounded shapes explicit.
+ */
+function createRadiusTokens(): Theme['radius'] {
+  return {
+    sm: 8,
+    md: 10,
+    lg: 12,
+    full: 999,
+  };
+}
+
+/**
+ * Creates a fresh typography token object for a single theme instance.
+ * Input: none.
+ * Output: a new constrained `Theme['typography']` object.
+ * Logic summary:
+ * - Provides shared text sizes only; line-height and weight stay component-local.
+ */
+function createTypographyTokens(): Theme['typography'] {
+  return {
+    sm: 12,
+    md: 14,
+    lg: 16,
+    xl: 20,
+    '2xl': 24,
   };
 }
 
@@ -55,16 +58,22 @@ function createSpacingTokens(): Theme['spacing'] {
  */
 export const lightTheme: Theme = {
   colors: {
-    background: '#FFFFFF',
-    surface: '#F7F8FA',
-    textPrimary: '#101828',
-    textSecondary: '#475467',
-    border: '#D0D5DD',
-    accent: '#0BA5EC',
+    primary: '#2563EB',
+    secondary: '#64748B',
     danger: '#D92D20',
+    warning: '#D97706',
+    success: '#15803D',
+    textBase: '#111827',
+    textContrast: '#F9FAFB',
+    background: '#FFFFFF',
+    backgroundContrast: '#111827',
+    border: '#D1D5DB',
+    backgroundTransparent: '#FFFFFFCC',
+    backgroundContrastTransparent: '#111827CC',
   },
-  text: createTextTokens(),
   spacing: createSpacingTokens(),
+  radius: createRadiusTokens(),
+  typography: createTypographyTokens(),
 };
 
 /**
@@ -74,16 +83,22 @@ export const lightTheme: Theme = {
  */
 export const darkTheme: Theme = {
   colors: {
-    background: '#101318',
-    surface: '#1B1F27',
-    textPrimary: '#F5F7FA',
-    textSecondary: '#98A2B3',
-    border: '#344054',
-    accent: '#53B1FD',
+    primary: '#93C5FD',
+    secondary: '#94A3B8',
     danger: '#FDA29B',
+    warning: '#FBBF24',
+    success: '#4ADE80',
+    textBase: '#F9FAFB',
+    textContrast: '#111827',
+    background: '#030712',
+    backgroundContrast: '#F9FAFB',
+    border: '#374151',
+    backgroundTransparent: '#030712CC',
+    backgroundContrastTransparent: '#F9FAFBCC',
   },
-  text: createTextTokens(),
   spacing: createSpacingTokens(),
+  radius: createRadiusTokens(),
+  typography: createTypographyTokens(),
 };
 
 /**

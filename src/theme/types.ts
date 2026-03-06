@@ -1,64 +1,68 @@
 /**
- * Theme color tokens used by UI layers.
- * These values are consumed by style creators and should remain platform-agnostic.
+ * Theme color tokens consumed by cross-component styles.
+ * The contract is intentionally flat and limited to 12 semantic keys.
  */
 export type ThemeColors = {
-  background: string;
-  surface: string;
-  textPrimary: string;
-  textSecondary: string;
-  border: string;
-  accent: string;
+  primary: string;
+  secondary: string;
   danger: string;
+  warning: string;
+  success: string;
+  textBase: string;
+  textContrast: string;
+  background: string;
+  backgroundContrast: string;
+  border: string;
+  backgroundTransparent: string;
+  backgroundContrastTransparent: string;
 };
 
 /**
- * Theme text tokens used by typography styles.
- * The object groups font families, scalable sizes, and line-height defaults.
+ * Theme typography scale used for shared text sizing.
+ * Only semantic size steps are exposed at theme level.
  */
-export type ThemeText = {
-  fontFamily: string;
-  fontFamilyMedium: string;
-  fontFamilyBold: string;
-  size: {
-    xs: number;
-    sm: number;
-    md: number;
-    lg: number;
-    xl: number;
-  };
-  lineHeight: {
-    xs: number;
-    sm: number;
-    md: number;
-    lg: number;
-    xl: number;
-  };
-};
-
-/**
- * Theme spacing tokens used by layout and component padding/margins.
- * Values are numeric to map directly to React Native style dimensions.
- */
-export type ThemeSpacing = {
-  none: number;
-  xs: number;
+export type ThemeTypography = {
   sm: number;
   md: number;
   lg: number;
   xl: number;
-  xxl: number;
+  '2xl': number;
+};
+
+/**
+ * Theme spacing scale used for shared layout gaps and paddings.
+ * The scale is constrained to six semantic steps.
+ */
+export type ThemeSpacing = {
+  '2sm': number;
+  sm: number;
+  md: number;
+  lg: number;
+  xl: number;
+  '2xl': number;
+};
+
+/**
+ * Theme radius tokens used by shared rounded corners.
+ * Full radius is intended for pill/circle-like shapes.
+ */
+export type ThemeRadius = {
+  sm: number;
+  md: number;
+  lg: number;
+  full: number;
 };
 
 /**
  * Main theme contract.
  * Input: consumed as the argument for theme-aware style factory functions.
- * Output: a fully typed set of category tokens for colors, text, and spacing.
+ * Output: constrained category tokens for colors, spacing, radius, and typography.
  */
 export type Theme = {
   colors: ThemeColors;
-  text: ThemeText;
   spacing: ThemeSpacing;
+  radius: ThemeRadius;
+  typography: ThemeTypography;
 };
 
 export type ThemeName = 'light' | 'dark';
