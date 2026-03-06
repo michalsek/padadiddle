@@ -46,8 +46,8 @@ function createTypographyTokens(): Theme['typography'] {
     sm: 12,
     md: 14,
     lg: 16,
-    xl: 20,
-    '2xl': 24,
+    xl: 24,
+    '2xl': 32,
   };
 }
 
