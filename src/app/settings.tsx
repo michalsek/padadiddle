@@ -2,6 +2,8 @@ import { Href, useRouter } from 'expo-router';
 import { useCallback } from 'react';
 import { Button, FlatList, View } from 'react-native';
 
+import { Screen, Text } from '../ui';
+
 type SettingsNavigationItem = {
   key: string;
   label: string;
@@ -53,15 +55,18 @@ export default function SettingsScreen() {
   ];
 
   return (
-    <FlatList
-      data={settingsNavigationItems}
-      keyExtractor={(item) => item.key}
-      contentContainerStyle={{ padding: 16, gap: 12 }}
-      renderItem={({ item }) => (
-        <View>
-          <Button title={item.label} onPress={() => navigateFromSettings(item.getHref())} />
-        </View>
-      )}
-    />
+    <Screen>
+      <FlatList
+        data={settingsNavigationItems}
+        keyExtractor={(item) => item.key}
+        contentContainerStyle={{ gap: 12 }}
+        ListHeaderComponent={<Text style={{ marginBottom: 12 }}>Navigate to a route</Text>}
+        renderItem={({ item }) => (
+          <View>
+            <Button title={item.label} onPress={() => navigateFromSettings(item.getHref())} />
+          </View>
+        )}
+      />
+    </Screen>
   );
 }
