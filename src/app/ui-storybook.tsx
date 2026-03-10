@@ -1,7 +1,21 @@
-import type { ReactNode } from "react";
-import { StyleSheet, View } from "react-native";
+import type { ReactNode } from 'react';
+import { View } from 'react-native';
 
-import { Box, Column, Heading, Row, Screen, Spacer, Text } from "../ui";
+import { createStyleSheet, useStyles } from '../theme';
+import {
+  Avatar,
+  Box,
+  Button,
+  Column,
+  Heading,
+  Icon,
+  Link,
+  Row,
+  Screen,
+  Spacer,
+  Spinner,
+  Text,
+} from '../ui';
 
 type StorybookSectionProps = {
   title: string;
@@ -10,7 +24,7 @@ type StorybookSectionProps = {
   testID: string;
 };
 
-const RHYTHM_PARTS = ["Kick", "Snare", "Hi-hat", "Ride"];
+const RHYTHM_PARTS = ['Kick', 'Snare', 'Hi-hat', 'Ride'];
 
 /**
  * Renders a reusable section wrapper for a UI component showcase block.
@@ -31,6 +45,8 @@ function StorybookSection({
   children,
   testID,
 }: StorybookSectionProps) {
+  const styles = useStyles(styleSheet);
+
   return (
     <View style={styles.section} testID={testID}>
       <Heading level={3}>{title}</Heading>
@@ -53,6 +69,8 @@ function StorybookSection({
  * - Exposes stable section test IDs for deterministic UI tests.
  */
 export default function UiStorybookScreen() {
+  const styles = useStyles(styleSheet);
+
   return (
     <Screen scrollable contentContainerStyle={styles.content}>
       <Heading level={1}>UI Storybook</Heading>
@@ -96,7 +114,7 @@ export default function UiStorybookScreen() {
         <Column
           gap={8}
           tone="surface"
-          style={styles.columnPreview}
+          style={styles.surfacePreview}
           testID="storybook-column-preview"
         >
           <Text>Intro</Text>
@@ -114,7 +132,7 @@ export default function UiStorybookScreen() {
           gap={8}
           wrap
           tone="surface"
-          style={styles.rowPreview}
+          style={styles.surfacePreview}
           testID="storybook-row-preview"
         >
           {RHYTHM_PARTS.map((part) => (
@@ -130,7 +148,7 @@ export default function UiStorybookScreen() {
         description="Spacer creates fixed horizontal or vertical spacing and can render line separators."
         testID="storybook-section-spacer"
       >
-        <Column gap={8} style={styles.spacerPreview}>
+        <Column gap={8} style={styles.surfacePreview}>
           <Text>Horizontal spacer (line tone):</Text>
           <Spacer
             axis="horizontal"
@@ -175,30 +193,90 @@ export default function UiStorybookScreen() {
           <Text variant="muted">Muted text variant</Text>
         </Column>
       </StorybookSection>
+
+      <StorybookSection
+        title="Button"
+        description="Button provides primary, secondary, and ghost variants with token-aligned disabled states."
+        testID="storybook-section-button"
+      >
+        <Row gap={8} wrap testID="storybook-button-preview">
+          <Button label="Primary" />
+          <Button label="Secondary" variant="secondary" />
+          <Button label="Ghost" variant="ghost" />
+          <Button disabled label="Disabled" />
+        </Row>
+      </StorybookSection>
+
+      <StorybookSection
+        title="Link"
+        description="Link renders themed inline navigation affordances and can open external URLs."
+        testID="storybook-section-link"
+      >
+        <Column gap={8} testID="storybook-link-preview">
+          <Link label="Read docs" />
+          <Link disabled label="Disabled link" />
+        </Column>
+      </StorybookSection>
+
+      <StorybookSection
+        title="Spinner"
+        description="Spinner surfaces token-driven loading states with optional color overrides."
+        testID="storybook-section-spinner"
+      >
+        <Row align="center" gap={16} testID="storybook-spinner-preview">
+          <Spinner testID="storybook-spinner-default" />
+          <Spinner color="#D97706" size="large" testID="storybook-spinner-warning" />
+        </Row>
+      </StorybookSection>
+
+      <StorybookSection
+        title="Avatar"
+        description="Avatar renders images or label-derived initials across circular and squared shapes."
+        testID="storybook-section-avatar"
+      >
+        <Row align="center" gap={12} wrap testID="storybook-avatar-preview">
+          <Avatar label="Pad A" testID="storybook-avatar-circle" />
+          <Avatar label="Hi Hat" shape="rounded" testID="storybook-avatar-rounded" />
+          <Avatar label="Ride Cymbal" shape="square" testID="storybook-avatar-square" />
+        </Row>
+      </StorybookSection>
+
+      <StorybookSection
+        title="Icon"
+        description="Icon wraps Expo icon families behind a single typed API and semantic theme tones."
+        testID="storybook-section-icon"
+      >
+        <Row align="center" gap={12} wrap testID="storybook-icon-preview">
+          <Icon family="feather" name="play-circle" tone="primary" />
+          <Icon family="ionicons" name="musical-notes" tone="default" />
+          <Icon family="material" name="music-note" tone="success" />
+        </Row>
+      </StorybookSection>
     </Screen>
   );
 }
 
-const styles = StyleSheet.create({
+const styleSheet = createStyleSheet((theme) => ({
   content: {
     gap: 18,
-    paddingBottom: 24,
+    paddingBottom: theme.spacing.xl,
   },
   section: {
     borderWidth: 1,
-    borderColor: "#D9D9D9",
-    borderRadius: 12,
-    padding: 12,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.lg,
+    padding: theme.spacing.md,
+    backgroundColor: theme.colors.backgroundTransparent,
   },
   embeddedScreen: {
     flex: 0,
     minHeight: 72,
     borderWidth: 1,
-    borderColor: "#BDBDBD",
-    borderRadius: 8,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.sm,
   },
   embeddedScreenContent: {
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   boxFrame: {
     height: 68,
@@ -206,34 +284,22 @@ const styles = StyleSheet.create({
   boxPreview: {
     flex: 1,
     borderWidth: 1,
-    borderColor: "#BDBDBD",
-    borderRadius: 8,
-    padding: 10,
-    justifyContent: "center",
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.sm,
+    padding: theme.spacing.md,
+    justifyContent: 'center',
   },
-  columnPreview: {
+  surfacePreview: {
     borderWidth: 1,
-    borderColor: "#BDBDBD",
-    borderRadius: 8,
-    padding: 10,
-  },
-  rowPreview: {
-    borderWidth: 1,
-    borderColor: "#BDBDBD",
-    borderRadius: 8,
-    padding: 10,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.sm,
+    padding: theme.spacing.md,
   },
   rowChip: {
     borderWidth: 1,
-    borderColor: "#BDBDBD",
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.full,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
   },
-  spacerPreview: {
-    borderWidth: 1,
-    borderColor: "#BDBDBD",
-    borderRadius: 8,
-    padding: 10,
-  },
-});
+}));
