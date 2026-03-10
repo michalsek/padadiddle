@@ -41,7 +41,7 @@ export function Link({
   const styles = useStyles(styleSheet);
   const theme = useTheme();
   const handlePress = useCallback(
-    function handlePress(event: GestureResponderEvent) {
+    (event: GestureResponderEvent) => {
       if (disabled) {
         return;
       }
