@@ -2,6 +2,7 @@ import type { ProgressBarVariant } from './types';
 
 export const ProgressBarDefaultHeight = 6;
 export const ProgressBarDefaultVariant: ProgressBarVariant = 'primary';
+export const ProgressBarAnimationDuration = 180;
 
 export const ProgressBarVariants: Record<
   ProgressBarVariant,

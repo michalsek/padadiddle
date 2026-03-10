@@ -10,6 +10,7 @@ export const SliderDisabledOpacity = 0.5;
 export const SliderPressedOpacity = 0.85;
 export const SliderLabelFontWeight = '600';
 export const SliderValueFontWeight = '600';
+export const SliderAnimationDuration = 120;
 
 export const SliderVariants: Record<
   SliderVariant,

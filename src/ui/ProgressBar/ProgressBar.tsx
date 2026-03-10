@@ -1,8 +1,16 @@
+import { useEffect } from 'react';
 import { View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { createStyleSheet, useStyles } from '../../theme';
 import { useTheme } from '../../theme/useTheme';
 import {
+  ProgressBarAnimationDuration,
   ProgressBarDefaultHeight,
   ProgressBarDefaultVariant,
 } from './constants';
@@ -35,6 +43,36 @@ export function ProgressBar({
   const theme = useTheme();
   const normalizedProgress = normalizeProgressValue(progress);
   const palette = getProgressBarPalette(theme, variant);
+  const animatedProgress = useSharedValue(normalizedProgress);
+
+  /**
+   * Synchronizes the React progress prop into a shared value for UI-thread animation.
+   * Input parameters: none.
+   * Output:
+   * - No direct return value; updates the shared progress with a timing animation.
+   * Logic summary:
+   * - Clamps the incoming prop before animating.
+   * - Keeps width changes on the UI thread while preserving a simple numeric API.
+   */
+  useEffect(() => {
+    animatedProgress.value = withTiming(normalizedProgress, {
+      duration: ProgressBarAnimationDuration,
+      easing: Easing.out(Easing.quad),
+    });
+  }, [animatedProgress, normalizedProgress]);
+
+  /**
+   * Animates the fill width from the shared progress value.
+   * Input parameters: none.
+   * Output:
+   * - Animated style object for the progress fill width.
+   * Logic summary:
+   * - Reads progress only from a shared value inside the worklet.
+   * - Converts the bounded ratio into a percentage width string on the UI thread.
+   */
+  const animatedFillStyle = useAnimatedStyle(() => ({
+    width: `${animatedProgress.value * 100}%`,
+  }));
 
   return (
     <View
@@ -56,14 +94,14 @@ export function ProgressBar({
       ]}
       testID={testID}
     >
-      <View
+      <Animated.View
         style={[
           styles.fill,
           {
-            width: `${normalizedProgress * 100}%`,
             borderRadius: height / 2,
             backgroundColor: palette.fillColor,
           },
+          animatedFillStyle,
         ]}
         testID={testID ? `${testID}-fill` : undefined}
       />

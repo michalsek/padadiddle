@@ -1,9 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Text as NativeText, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { createStyleSheet, useStyles } from '../../theme';
 import { useTheme } from '../../theme/useTheme';
 import {
+  SliderAnimationDuration,
   SliderDefaultStep,
   SliderDefaultVariant,
   SliderDisabledOpacity,
@@ -64,8 +71,38 @@ export function Slider({
   const [trackWidth, setTrackWidth] = useState(0);
   const normalizedValue = normalizeSliderValue(value, min, max, step);
   const ratio = getSliderRatio(normalizedValue, min, max);
-  const thumbLeft = Math.max(0, ratio * trackWidth - SliderThumbSize / 2);
   const palette = getSliderPalette(theme, variant, disabled);
+  const animatedRatio = useSharedValue(ratio);
+  const animatedTrackWidth = useSharedValue(trackWidth);
+
+  /**
+   * Synchronizes the controlled slider value into a shared value used by animated styles.
+   * Input parameters: none.
+   * Output:
+   * - No direct return value; updates the shared ratio with a short timing animation.
+   * Logic summary:
+   * - Mirrors React-controlled value changes onto the UI thread.
+   * - Keeps fill and thumb movement smooth when parent state updates after interaction.
+   */
+  useEffect(() => {
+    animatedRatio.value = withTiming(ratio, {
+      duration: SliderAnimationDuration,
+      easing: Easing.out(Easing.quad),
+    });
+  }, [animatedRatio, ratio]);
+
+  /**
+   * Synchronizes measured track width into a shared value for thumb positioning worklets.
+   * Input parameters: none.
+   * Output:
+   * - No direct return value; mirrors the latest layout width to the UI thread.
+   * Logic summary:
+   * - Allows thumb translation to be computed inside animated styles without JS reads.
+   * - Keeps the animated thumb position aligned with responder-driven layout changes.
+   */
+  useEffect(() => {
+    animatedTrackWidth.value = trackWidth;
+  }, [animatedTrackWidth, trackWidth]);
 
   /**
    * Applies a responder position to the controlled slider value.
@@ -84,11 +121,50 @@ export function Slider({
     }
 
     const nextValue = getSliderValueFromPosition(positionX, trackWidth, min, max, step);
+    const nextRatio = getSliderRatio(nextValue, min, max);
+
+    animatedRatio.value = withTiming(nextRatio, {
+      duration: SliderAnimationDuration,
+      easing: Easing.out(Easing.quad),
+    });
 
     if (nextValue !== normalizedValue) {
       onChange(nextValue);
     }
   }
+
+  /**
+   * Animates the slider fill width from the shared ratio.
+   * Input parameters: none.
+   * Output:
+   * - Animated style object for the filled track segment.
+   * Logic summary:
+   * - Reads only shared values inside the worklet.
+   * - Keeps width interpolation on the UI thread for smoother updates.
+   */
+  const animatedFillStyle = useAnimatedStyle(() => ({
+    width: `${animatedRatio.value * 100}%`,
+  }));
+
+  /**
+   * Animates the thumb translation using the shared ratio and measured track width.
+   * Input parameters: none.
+   * Output:
+   * - Animated style object for horizontal thumb positioning.
+   * Logic summary:
+   * - Derives thumb offset entirely from shared values.
+   * - Uses transform-based movement so the thumb stays animation-driven.
+   */
+  const animatedThumbStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateX: Math.max(
+          0,
+          animatedRatio.value * animatedTrackWidth.value - SliderThumbSize / 2,
+        ),
+      },
+    ],
+  }));
 
   return (
     <View
@@ -148,26 +224,26 @@ export function Slider({
         style={[styles.track, { backgroundColor: palette.trackColor }]}
         testID={testID ? `${testID}-track` : undefined}
       >
-        <View
+        <Animated.View
           pointerEvents="none"
           style={[
             styles.fill,
             {
-              width: `${ratio * 100}%`,
               backgroundColor: palette.fillColor,
             },
+            animatedFillStyle,
           ]}
           testID={testID ? `${testID}-fill` : undefined}
         />
-        <View
+        <Animated.View
           pointerEvents="none"
           style={[
             styles.thumb,
             {
-              left: thumbLeft,
               backgroundColor: palette.thumbColor,
               borderColor: palette.thumbBorderColor,
             },
+            animatedThumbStyle,
           ]}
           testID={testID ? `${testID}-thumb` : undefined}
         />
@@ -211,6 +287,7 @@ const styleSheet = createStyleSheet((theme) => ({
   thumb: {
     position: 'absolute',
     top: (SliderTrackHeight - SliderThumbSize) / 2,
+    left: 0,
     width: SliderThumbSize,
     height: SliderThumbSize,
     borderRadius: theme.radius.full,
