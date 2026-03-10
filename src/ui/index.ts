@@ -4,6 +4,9 @@ export type { AvatarProps, AvatarShape } from './Avatar';
 export { Button } from './Button';
 export type { ButtonProps, ButtonVariant } from './Button';
 
+export { Checkbox } from './Checkbox';
+export type { CheckboxProps } from './Checkbox';
+
 export { Icon } from './Icon';
 export type { IconFamily, IconNameByFamily, IconProps, IconTone } from './Icon';
 
@@ -26,6 +29,9 @@ export type {
 
 export { Link } from './Link';
 export type { LinkProps } from './Link';
+
+export { RadioButton } from './RadioButton';
+export type { RadioButtonProps } from './RadioButton';
 
 export { Spinner } from './Spinner';
 export type { SpinnerProps } from './Spinner';
