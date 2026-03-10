@@ -54,7 +54,6 @@ All of the code of the app resides inside src directory. Refer to its AGENTS fil
 ## Verification & reporting
 
 - After changes, typecheck + format + lint the affected files
-- If an iOS simulator is available, use `idb` to click through newly added or changed app flows and report the visited screens plus any issues found.
 - Summarize skipped tasks or open questions at the end of your output
 
 ## Workflow
