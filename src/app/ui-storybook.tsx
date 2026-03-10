@@ -1,7 +1,7 @@
-import { useState, type ReactNode } from 'react';
-import { View } from 'react-native';
+import { useState, type ReactNode } from "react";
+import { View } from "react-native";
 
-import { createStyleSheet, useStyles } from '../theme';
+import { createStyleSheet, useStyles } from "../theme";
 import {
   Avatar,
   Box,
@@ -17,7 +17,7 @@ import {
   Spacer,
   Spinner,
   Text,
-} from '../ui';
+} from "../ui";
 
 type StorybookSectionProps = {
   title: string;
@@ -26,7 +26,7 @@ type StorybookSectionProps = {
   testID: string;
 };
 
-const RHYTHM_PARTS = ['Kick', 'Snare', 'Hi-hat', 'Ride'];
+const RHYTHM_PARTS = ["Kick", "Snare", "Hi-hat", "Ride"];
 
 /**
  * Renders a reusable section wrapper for a UI component showcase block.
@@ -73,9 +73,9 @@ function StorybookSection({
 export default function UiStorybookScreen() {
   const styles = useStyles(styleSheet);
   const [isPracticeModeEnabled, setIsPracticeModeEnabled] = useState(true);
-  const [selectedSubdivision, setSelectedSubdivision] = useState<'quarters' | 'eighths' | 'triplets'>(
-    'eighths',
-  );
+  const [selectedSubdivision, setSelectedSubdivision] = useState<
+    "quarters" | "eighths" | "triplets"
+  >("eighths");
 
   return (
     <Screen scrollable contentContainerStyle={styles.content}>
@@ -231,9 +231,18 @@ export default function UiStorybookScreen() {
           <Column gap={8}>
             <Text variant="muted">Variants</Text>
             <Row gap={12} wrap testID="storybook-checkbox-variants">
-              <Checkbox checked={false} label="Unchecked" onChange={() => undefined} />
+              <Checkbox
+                checked={false}
+                label="Unchecked"
+                onChange={() => undefined}
+              />
               <Checkbox checked label="Checked" onChange={() => undefined} />
-              <Checkbox checked disabled label="Disabled" onChange={() => undefined} />
+              <Checkbox
+                checked
+                disabled
+                label="Disabled"
+                onChange={() => undefined}
+              />
             </Row>
           </Column>
         </Column>
@@ -261,27 +270,40 @@ export default function UiStorybookScreen() {
             <Column gap={8} testID="storybook-radiobutton-usage">
               <RadioButton
                 label="Quarter notes"
-                onSelect={() => setSelectedSubdivision('quarters')}
-                selected={selectedSubdivision === 'quarters'}
+                onSelect={() => setSelectedSubdivision("quarters")}
+                selected={selectedSubdivision === "quarters"}
               />
               <RadioButton
                 label="Eighth notes"
-                onSelect={() => setSelectedSubdivision('eighths')}
-                selected={selectedSubdivision === 'eighths'}
+                onSelect={() => setSelectedSubdivision("eighths")}
+                selected={selectedSubdivision === "eighths"}
               />
               <RadioButton
                 label="Triplets"
-                onSelect={() => setSelectedSubdivision('triplets')}
-                selected={selectedSubdivision === 'triplets'}
+                onSelect={() => setSelectedSubdivision("triplets")}
+                selected={selectedSubdivision === "triplets"}
               />
             </Column>
           </Column>
           <Column gap={8}>
             <Text variant="muted">Variants</Text>
             <Row gap={12} wrap testID="storybook-radiobutton-variants">
-              <RadioButton label="Unselected" onSelect={() => undefined} selected={false} />
-              <RadioButton label="Selected" onSelect={() => undefined} selected />
-              <RadioButton disabled label="Disabled" onSelect={() => undefined} selected />
+              <RadioButton
+                label="Unselected"
+                onSelect={() => undefined}
+                selected={false}
+              />
+              <RadioButton
+                label="Selected"
+                onSelect={() => undefined}
+                selected
+              />
+              <RadioButton
+                disabled
+                label="Disabled"
+                onSelect={() => undefined}
+                selected
+              />
             </Row>
           </Column>
         </Column>
@@ -294,7 +316,11 @@ export default function UiStorybookScreen() {
       >
         <Row align="center" gap={16} testID="storybook-spinner-preview">
           <Spinner testID="storybook-spinner-default" />
-          <Spinner color="#D97706" size="large" testID="storybook-spinner-warning" />
+          <Spinner
+            color="#D97706"
+            size="large"
+            testID="storybook-spinner-warning"
+          />
         </Row>
       </StorybookSection>
 
@@ -305,8 +331,16 @@ export default function UiStorybookScreen() {
       >
         <Row align="center" gap={12} wrap testID="storybook-avatar-preview">
           <Avatar label="Pad A" testID="storybook-avatar-circle" />
-          <Avatar label="Hi Hat" shape="rounded" testID="storybook-avatar-rounded" />
-          <Avatar label="Ride Cymbal" shape="square" testID="storybook-avatar-square" />
+          <Avatar
+            label="Hi Hat"
+            shape="rounded"
+            testID="storybook-avatar-rounded"
+          />
+          <Avatar
+            label="Ride Cymbal"
+            shape="square"
+            testID="storybook-avatar-square"
+          />
         </Row>
       </StorybookSection>
 
@@ -332,20 +366,15 @@ const styleSheet = createStyleSheet((theme) => ({
   },
   section: {
     borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radius.lg,
-    padding: theme.spacing.md,
-    backgroundColor: theme.colors.backgroundTransparent,
   },
   embeddedScreen: {
     flex: 0,
     minHeight: 72,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    borderRadius: theme.radius.sm,
   },
   embeddedScreenContent: {
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   boxFrame: {
     height: 68,
@@ -354,20 +383,17 @@ const styleSheet = createStyleSheet((theme) => ({
     flex: 1,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    borderRadius: theme.radius.sm,
     padding: theme.spacing.md,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   surfacePreview: {
     borderWidth: 1,
     borderColor: theme.colors.border,
-    borderRadius: theme.radius.sm,
     padding: theme.spacing.md,
   },
   rowChip: {
     borderWidth: 1,
     borderColor: theme.colors.border,
-    borderRadius: theme.radius.full,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
   },
