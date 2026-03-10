@@ -28,6 +28,7 @@ import { getLinkColor } from './utils';
  * Logic summary:
  * - Uses the primary theme color for active links and secondary tone for disabled links.
  * - Calls the provided press handler first, then opens `href` when present and enabled.
+ * - Catches external-link failures so rejected `openURL` promises do not escape globally.
  */
 export function Link({
   label,
@@ -49,7 +50,9 @@ export function Link({
       onPress?.(event);
 
       if (href) {
-        void Linking.openURL(href);
+        void Linking.openURL(href).catch((error) => {
+          console.error('Failed to open URL in Link component:', error);
+        });
       }
     },
     [disabled, href, onPress],

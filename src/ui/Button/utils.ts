@@ -5,7 +5,6 @@ export type ButtonPalette = {
   backgroundColor: string;
   borderColor: string;
   textColor: string;
-  opacity: number;
 };
 
 /**
@@ -30,7 +29,6 @@ export function getButtonPalette(
       backgroundColor: disabled ? theme.colors.backgroundTransparent : theme.colors.background,
       borderColor: theme.colors.border,
       textColor: disabled ? theme.colors.secondary : theme.colors.textBase,
-      opacity: disabled ? 0.5 : 1,
     };
   }
 
@@ -39,7 +37,6 @@ export function getButtonPalette(
       backgroundColor: 'transparent',
       borderColor: 'transparent',
       textColor: disabled ? theme.colors.secondary : theme.colors.textBase,
-      opacity: disabled ? 0.5 : 1,
     };
   }
 
@@ -47,6 +44,5 @@ export function getButtonPalette(
     backgroundColor: disabled ? theme.colors.backgroundContrastTransparent : theme.colors.primary,
     borderColor: disabled ? theme.colors.backgroundContrastTransparent : theme.colors.primary,
     textColor: theme.colors.textContrast,
-    opacity: disabled ? 0.5 : 1,
   };
 }

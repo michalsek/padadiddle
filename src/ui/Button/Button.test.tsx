@@ -19,9 +19,12 @@ describe('Button', () => {
     const { getByTestId } = render(
       <Button disabled label="Disabled" onPress={onPress} testID="button" variant="secondary" />,
     );
-    const flattenedStyle = StyleSheet.flatten(getByTestId('button').props.style);
+    const button = getByTestId('button');
+    const styleProp = button.props.style;
+    const resolvedStyle = typeof styleProp === 'function' ? styleProp({ pressed: false }) : styleProp;
+    const flattenedStyle = StyleSheet.flatten(resolvedStyle);
 
-    fireEvent.press(getByTestId('button'));
+    fireEvent.press(button);
 
     expect(flattenedStyle.backgroundColor).toBe('#FFFFFFCC');
     expect(flattenedStyle.borderColor).toBe('#D1D5DB');

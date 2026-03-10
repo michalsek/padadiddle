@@ -55,7 +55,7 @@ export function Button({
         {
           backgroundColor: palette.backgroundColor,
           borderColor: palette.borderColor,
-          opacity: disabled ? ButtonDisabledOpacity : pressed ? ButtonPressedOpacity : palette.opacity,
+          opacity: disabled ? ButtonDisabledOpacity : pressed ? ButtonPressedOpacity : 1,
         },
         style,
       ]}
