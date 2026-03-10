@@ -1,4 +1,4 @@
-import { Screen, Text } from '../../ui';
+import { Screen, Text } from '@/ui';
 
 /**
  * Editor creation entry screen.

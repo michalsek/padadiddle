@@ -2,7 +2,7 @@ import { Href, useRouter } from "expo-router";
 import { useCallback } from "react";
 import { Button, FlatList, View } from "react-native";
 
-import { Screen, Text } from "../ui";
+import { Screen, Text } from "@/ui";
 
 type SettingsNavigationItem = {
   key: string;

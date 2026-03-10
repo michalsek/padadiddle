@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { Box, Column, Heading, Row, Screen, Spacer, Text } from "../ui";
+import { Box, Column, Heading, Row, Screen, Spacer, Text } from "@/ui";
 
 type StorybookSectionProps = {
   title: string;
@@ -11,6 +11,17 @@ type StorybookSectionProps = {
 };
 
 const RHYTHM_PARTS = ["Kick", "Snare", "Hi-hat", "Ride"];
+const UI_USAGE_SNIPPET =
+  "import { Box, Column, Heading, Row, Screen, Spacer, Text } from '@/ui';";
+const UI_VARIANT_SUMMARIES = [
+  "Screen: default shell, scrollable, disableSafeArea, custom padding",
+  "Box: base themed container with custom style overrides",
+  "Column: default and surface tones with configurable gap and alignment",
+  "Row: default and surface tones with gap, alignment, justify, and wrap",
+  "Spacer: horizontal or vertical axis with default or line tone",
+  "Heading: semantic levels 1 through 4",
+  "Text: default and muted body variants",
+];
 
 /**
  * Renders a reusable section wrapper for a UI component showcase block.
@@ -57,8 +68,33 @@ export default function UiStorybookScreen() {
     <Screen scrollable contentContainerStyle={styles.content}>
       <Heading level={1}>UI Storybook</Heading>
       <Text variant="muted">
-        Reference examples for all shared UI components in this app.
+        Reference examples for all shared UI components exported from the `@/ui`
+        barrel.
       </Text>
+
+      <StorybookSection
+        title="Usage"
+        description="Import migrated primitives from a single shared barrel so feature screens stay on one public entrypoint."
+        testID="storybook-section-usage"
+      >
+        <View style={styles.codeBlock} testID="storybook-usage-preview">
+          <Text testID="storybook-usage-snippet">{UI_USAGE_SNIPPET}</Text>
+        </View>
+      </StorybookSection>
+
+      <StorybookSection
+        title="Variants"
+        description="The current public UI surface exposes these variants and extension points for consumers."
+        testID="storybook-section-variants"
+      >
+        <Column gap={8} testID="storybook-variants-preview">
+          {UI_VARIANT_SUMMARIES.map((summary) => (
+            <View key={summary} style={styles.variantItem}>
+              <Text>{summary}</Text>
+            </View>
+          ))}
+        </Column>
+      </StorybookSection>
 
       <StorybookSection
         title="Screen"
@@ -189,6 +225,18 @@ const styles = StyleSheet.create({
     borderColor: "#D9D9D9",
     borderRadius: 12,
     padding: 12,
+  },
+  codeBlock: {
+    borderWidth: 1,
+    borderColor: "#BDBDBD",
+    borderRadius: 8,
+    padding: 10,
+  },
+  variantItem: {
+    borderWidth: 1,
+    borderColor: "#BDBDBD",
+    borderRadius: 8,
+    padding: 10,
   },
   embeddedScreen: {
     flex: 0,

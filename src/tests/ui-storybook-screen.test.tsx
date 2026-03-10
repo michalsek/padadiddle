@@ -16,6 +16,8 @@ describe("UiStorybookScreen", () => {
     render(<UiStorybookScreen />);
 
     expect(screen.getByText("UI Storybook")).toBeTruthy();
+    expect(screen.getByTestId("storybook-section-usage")).toBeTruthy();
+    expect(screen.getByTestId("storybook-section-variants")).toBeTruthy();
     expect(screen.getByTestId("storybook-section-screen")).toBeTruthy();
     expect(screen.getByTestId("storybook-section-box")).toBeTruthy();
     expect(screen.getByTestId("storybook-section-column")).toBeTruthy();
@@ -23,5 +25,6 @@ describe("UiStorybookScreen", () => {
     expect(screen.getByTestId("storybook-section-spacer")).toBeTruthy();
     expect(screen.getByTestId("storybook-section-heading")).toBeTruthy();
     expect(screen.getByTestId("storybook-section-text")).toBeTruthy();
+    expect(screen.getByTestId("storybook-usage-snippet")).toBeTruthy();
   });
 });
