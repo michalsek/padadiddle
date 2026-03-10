@@ -1,4 +1,6 @@
+import { useCallback } from 'react';
 import * as Linking from 'expo-linking';
+import type { GestureResponderEvent } from 'react-native';
 import { Pressable, Text as NativeText } from 'react-native';
 
 import { createStyleSheet, useStyles } from '../../theme';
@@ -38,23 +40,27 @@ export function Link({
 }: LinkProps) {
   const styles = useStyles(styleSheet);
   const theme = useTheme();
+  const handlePress = useCallback(
+    function handlePress(event: GestureResponderEvent) {
+      if (disabled) {
+        return;
+      }
+
+      onPress?.(event);
+
+      if (href) {
+        void Linking.openURL(href);
+      }
+    },
+    [disabled, href, onPress],
+  );
 
   return (
     <Pressable
       accessibilityRole="link"
       accessibilityState={{ disabled }}
       disabled={disabled}
-      onPress={(event) => {
-        if (disabled) {
-          return;
-        }
-
-        onPress?.(event);
-
-        if (href) {
-          void Linking.openURL(href);
-        }
-      }}
+      onPress={handlePress}
       testID={testID}
       style={({ pressed }) => [
         styles.container,
