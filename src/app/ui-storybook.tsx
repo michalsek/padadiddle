@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { View } from 'react-native';
 
 import { createStyleSheet, useStyles } from '../theme';
@@ -6,10 +6,12 @@ import {
   Avatar,
   Box,
   Button,
+  Checkbox,
   Column,
   Heading,
   Icon,
   Link,
+  RadioButton,
   Row,
   Screen,
   Spacer,
@@ -70,6 +72,10 @@ function StorybookSection({
  */
 export default function UiStorybookScreen() {
   const styles = useStyles(styleSheet);
+  const [isPracticeModeEnabled, setIsPracticeModeEnabled] = useState(true);
+  const [selectedSubdivision, setSelectedSubdivision] = useState<'quarters' | 'eighths' | 'triplets'>(
+    'eighths',
+  );
 
   return (
     <Screen scrollable contentContainerStyle={styles.content}>
@@ -208,6 +214,32 @@ export default function UiStorybookScreen() {
       </StorybookSection>
 
       <StorybookSection
+        title="Checkbox"
+        description="Checkbox supports labeled boolean toggles with token-driven checked, unchecked, and disabled states."
+        testID="storybook-section-checkbox"
+      >
+        <Column gap={12} testID="storybook-checkbox-preview">
+          <Column gap={8}>
+            <Text variant="muted">Usage</Text>
+            <Checkbox
+              checked={isPracticeModeEnabled}
+              label="Enable practice mode"
+              onChange={setIsPracticeModeEnabled}
+              testID="storybook-checkbox-usage"
+            />
+          </Column>
+          <Column gap={8}>
+            <Text variant="muted">Variants</Text>
+            <Row gap={12} wrap testID="storybook-checkbox-variants">
+              <Checkbox checked={false} label="Unchecked" onChange={() => undefined} />
+              <Checkbox checked label="Checked" onChange={() => undefined} />
+              <Checkbox checked disabled label="Disabled" onChange={() => undefined} />
+            </Row>
+          </Column>
+        </Column>
+      </StorybookSection>
+
+      <StorybookSection
         title="Link"
         description="Link renders themed inline navigation affordances and can open external URLs."
         testID="storybook-section-link"
@@ -215,6 +247,43 @@ export default function UiStorybookScreen() {
         <Column gap={8} testID="storybook-link-preview">
           <Link label="Read docs" />
           <Link disabled label="Disabled link" />
+        </Column>
+      </StorybookSection>
+
+      <StorybookSection
+        title="RadioButton"
+        description="RadioButton supports mutually exclusive choices with clear selected and disabled presentation."
+        testID="storybook-section-radiobutton"
+      >
+        <Column gap={12} testID="storybook-radiobutton-preview">
+          <Column gap={8}>
+            <Text variant="muted">Usage</Text>
+            <Column gap={8} testID="storybook-radiobutton-usage">
+              <RadioButton
+                label="Quarter notes"
+                onSelect={() => setSelectedSubdivision('quarters')}
+                selected={selectedSubdivision === 'quarters'}
+              />
+              <RadioButton
+                label="Eighth notes"
+                onSelect={() => setSelectedSubdivision('eighths')}
+                selected={selectedSubdivision === 'eighths'}
+              />
+              <RadioButton
+                label="Triplets"
+                onSelect={() => setSelectedSubdivision('triplets')}
+                selected={selectedSubdivision === 'triplets'}
+              />
+            </Column>
+          </Column>
+          <Column gap={8}>
+            <Text variant="muted">Variants</Text>
+            <Row gap={12} wrap testID="storybook-radiobutton-variants">
+              <RadioButton label="Unselected" onSelect={() => undefined} selected={false} />
+              <RadioButton label="Selected" onSelect={() => undefined} selected />
+              <RadioButton disabled label="Disabled" onSelect={() => undefined} selected />
+            </Row>
+          </Column>
         </Column>
       </StorybookSection>
 

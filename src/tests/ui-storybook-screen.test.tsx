@@ -45,7 +45,9 @@ describe('UiStorybookScreen', () => {
     expect(screen.getByTestId('storybook-section-heading')).toBeTruthy();
     expect(screen.getByTestId('storybook-section-text')).toBeTruthy();
     expect(screen.getByTestId('storybook-section-button')).toBeTruthy();
+    expect(screen.getByTestId('storybook-section-checkbox')).toBeTruthy();
     expect(screen.getByTestId('storybook-section-link')).toBeTruthy();
+    expect(screen.getByTestId('storybook-section-radiobutton')).toBeTruthy();
     expect(screen.getByTestId('storybook-section-spinner')).toBeTruthy();
     expect(screen.getByTestId('storybook-section-avatar')).toBeTruthy();
     expect(screen.getByTestId('storybook-section-icon')).toBeTruthy();
