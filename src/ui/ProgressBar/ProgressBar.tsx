@@ -1,0 +1,82 @@
+import { View } from 'react-native';
+
+import { createStyleSheet, useStyles } from '../../theme';
+import { useTheme } from '../../theme/useTheme';
+import {
+  ProgressBarDefaultHeight,
+  ProgressBarDefaultVariant,
+} from './constants';
+import type { ProgressBarProps } from './types';
+import { getProgressBarPalette, normalizeProgressValue } from './utils';
+
+/**
+ * Renders a themed horizontal progress bar for bounded completion values.
+ * Input parameters:
+ * - `progress`: numeric completion ratio expected in the `[0, 1]` range.
+ * - `height`: optional track height used for both the track and fill radius.
+ * - `variant`: semantic visual variant for the fill color.
+ * - `style`: optional outer track style overrides merged last.
+ * - `testID`: optional stable root identifier used to derive the fill test id.
+ * Output:
+ * - A themed progress track with a clamped fill width and accessibility metadata.
+ * Logic summary:
+ * - Clamps incoming progress values before rendering or exposing accessibility state.
+ * - Reuses the limited theme token contract for neutral track and semantic fill colors.
+ * - Keeps rendering deterministic by expressing fill width as a plain percentage string.
+ */
+export function ProgressBar({
+  progress,
+  height = ProgressBarDefaultHeight,
+  variant = ProgressBarDefaultVariant,
+  style,
+  testID,
+}: ProgressBarProps) {
+  const styles = useStyles(styleSheet);
+  const theme = useTheme();
+  const normalizedProgress = normalizeProgressValue(progress);
+  const palette = getProgressBarPalette(theme, variant);
+
+  return (
+    <View
+      accessible
+      accessibilityRole="progressbar"
+      accessibilityValue={{
+        min: 0,
+        max: 100,
+        now: Math.round(normalizedProgress * 100),
+      }}
+      style={[
+        styles.track,
+        {
+          height,
+          borderRadius: height / 2,
+          backgroundColor: palette.trackColor,
+        },
+        style,
+      ]}
+      testID={testID}
+    >
+      <View
+        style={[
+          styles.fill,
+          {
+            width: `${normalizedProgress * 100}%`,
+            borderRadius: height / 2,
+            backgroundColor: palette.fillColor,
+          },
+        ]}
+        testID={testID ? `${testID}-fill` : undefined}
+      />
+    </View>
+  );
+}
+
+const styleSheet = createStyleSheet(() => ({
+  track: {
+    width: '100%',
+    overflow: 'hidden',
+  },
+  fill: {
+    height: '100%',
+  },
+}));

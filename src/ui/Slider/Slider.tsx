@@ -1,0 +1,219 @@
+import { useState } from 'react';
+import { Text as NativeText, View } from 'react-native';
+
+import { createStyleSheet, useStyles } from '../../theme';
+import { useTheme } from '../../theme/useTheme';
+import {
+  SliderDefaultStep,
+  SliderDefaultVariant,
+  SliderDisabledOpacity,
+  SliderHeaderGap,
+  SliderLabelFontWeight,
+  SliderPressedOpacity,
+  SliderThumbBorderWidth,
+  SliderThumbSize,
+  SliderTrackHeight,
+  SliderValueFontWeight,
+} from './constants';
+import type { SliderProps } from './types';
+import {
+  getSliderPalette,
+  getSliderRatio,
+  getSliderValueFromPosition,
+  normalizeSliderValue,
+} from './utils';
+
+/**
+ * Renders a controlled themed slider with tap and drag interaction support.
+ * Input parameters:
+ * - `value`: current controlled slider value.
+ * - `min`/`max`: numeric bounds for the slider range.
+ * - `step`: optional step interval used to snap drag positions.
+ * - `onChange`: callback fired when interaction selects a different normalized value.
+ * - `label`: optional descriptive label shown above the slider, defaulting to `Value`.
+ * - `variant`: semantic visual variant controlling fill and thumb colors.
+ * - `disabled`: whether interaction should be blocked and visuals muted.
+ * - `style`/`labelStyle`/`valueStyle`: optional style overrides merged after themed defaults.
+ * - `testID`: optional stable root identifier used to derive child test ids.
+ * - `...rest`: additional React Native `View` props forwarded to the interactive track.
+ * Output:
+ * - A slider with current value text, themed track/fill/thumb styling, and accessibility metadata.
+ * Logic summary:
+ * - Normalizes incoming values so controlled rendering always matches legal step boundaries.
+ * - Measures the track width once layout is known, then maps responder positions back to values.
+ * - Keeps interaction local to the track while exposing stable child test ids for unit tests.
+ */
+export function Slider({
+  value,
+  min,
+  max,
+  step = SliderDefaultStep,
+  onChange,
+  label,
+  variant = SliderDefaultVariant,
+  disabled = false,
+  style,
+  labelStyle,
+  valueStyle,
+  testID,
+  ...rest
+}: SliderProps) {
+  const styles = useStyles(styleSheet);
+  const theme = useTheme();
+  const [isPressed, setIsPressed] = useState(false);
+  const [trackWidth, setTrackWidth] = useState(0);
+  const normalizedValue = normalizeSliderValue(value, min, max, step);
+  const ratio = getSliderRatio(normalizedValue, min, max);
+  const thumbLeft = Math.max(0, ratio * trackWidth - SliderThumbSize / 2);
+  const palette = getSliderPalette(theme, variant, disabled);
+
+  /**
+   * Applies a responder position to the controlled slider value.
+   * Input parameters:
+   * - `positionX`: local X coordinate from the active responder event.
+   * Output:
+   * - No direct return value; invokes `onChange` when the computed value differs.
+   * Logic summary:
+   * - Ignores interaction while disabled.
+   * - Converts the touch location into a normalized stepped value using the measured track width.
+   * - Prevents redundant `onChange` calls when interaction lands on the current value.
+   */
+  function applyPosition(positionX: number) {
+    if (disabled) {
+      return;
+    }
+
+    const nextValue = getSliderValueFromPosition(positionX, trackWidth, min, max, step);
+
+    if (nextValue !== normalizedValue) {
+      onChange(nextValue);
+    }
+  }
+
+  return (
+    <View
+      style={[
+        styles.container,
+        { opacity: disabled ? SliderDisabledOpacity : isPressed ? SliderPressedOpacity : 1 },
+        style,
+      ]}
+      testID={testID}
+    >
+      <View style={styles.header}>
+        <NativeText
+          style={[styles.label, { color: palette.labelColor }, labelStyle]}
+          testID={testID ? `${testID}-label` : undefined}
+        >
+          {label ?? 'Value'}
+        </NativeText>
+        <NativeText
+          style={[styles.value, { color: palette.valueColor }, valueStyle]}
+          testID={testID ? `${testID}-value` : undefined}
+        >
+          {normalizedValue}
+        </NativeText>
+      </View>
+
+      <View
+        {...rest}
+        accessibilityRole="adjustable"
+        accessibilityState={{ disabled }}
+        accessibilityValue={{
+          min: Math.min(min, max),
+          max: Math.max(min, max),
+          now: normalizedValue,
+          text: `${normalizedValue}`,
+        }}
+        accessible
+        onLayout={(event) => {
+          setTrackWidth(event.nativeEvent.layout.width);
+        }}
+        onMoveShouldSetResponder={() => !disabled}
+        onMoveShouldSetResponderCapture={() => !disabled}
+        onResponderGrant={(event) => {
+          setIsPressed(true);
+          applyPosition(event.nativeEvent.locationX);
+        }}
+        onResponderMove={(event) => {
+          applyPosition(event.nativeEvent.locationX);
+        }}
+        onResponderRelease={() => {
+          setIsPressed(false);
+        }}
+        onResponderTerminate={() => {
+          setIsPressed(false);
+        }}
+        onStartShouldSetResponder={() => !disabled}
+        onStartShouldSetResponderCapture={() => !disabled}
+        style={[styles.track, { backgroundColor: palette.trackColor }]}
+        testID={testID ? `${testID}-track` : undefined}
+      >
+        <View
+          pointerEvents="none"
+          style={[
+            styles.fill,
+            {
+              width: `${ratio * 100}%`,
+              backgroundColor: palette.fillColor,
+            },
+          ]}
+          testID={testID ? `${testID}-fill` : undefined}
+        />
+        <View
+          pointerEvents="none"
+          style={[
+            styles.thumb,
+            {
+              left: thumbLeft,
+              backgroundColor: palette.thumbColor,
+              borderColor: palette.thumbBorderColor,
+            },
+          ]}
+          testID={testID ? `${testID}-thumb` : undefined}
+        />
+      </View>
+    </View>
+  );
+}
+
+const styleSheet = createStyleSheet((theme) => ({
+  container: {
+    width: '100%',
+    gap: theme.spacing.sm,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: SliderHeaderGap,
+  },
+  label: {
+    fontSize: theme.typography.sm,
+    fontWeight: SliderLabelFontWeight,
+  },
+  value: {
+    fontSize: theme.typography.sm,
+    fontWeight: SliderValueFontWeight,
+  },
+  track: {
+    height: SliderTrackHeight,
+    borderRadius: theme.radius.full,
+    justifyContent: 'center',
+    overflow: 'visible',
+  },
+  fill: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    borderRadius: theme.radius.full,
+  },
+  thumb: {
+    position: 'absolute',
+    top: (SliderTrackHeight - SliderThumbSize) / 2,
+    width: SliderThumbSize,
+    height: SliderThumbSize,
+    borderRadius: theme.radius.full,
+    borderWidth: SliderThumbBorderWidth,
+  },
+}));

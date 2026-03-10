@@ -30,8 +30,14 @@ export type {
 export { Link } from './Link';
 export type { LinkProps } from './Link';
 
+export { ProgressBar } from './ProgressBar';
+export type { ProgressBarProps, ProgressBarVariant } from './ProgressBar';
+
 export { RadioButton } from './RadioButton';
 export type { RadioButtonProps } from './RadioButton';
+
+export { Slider } from './Slider';
+export type { SliderProps, SliderVariant } from './Slider';
 
 export { Spinner } from './Spinner';
 export type { SpinnerProps } from './Spinner';
