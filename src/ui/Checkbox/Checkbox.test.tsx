@@ -43,4 +43,20 @@ describe('Checkbox', () => {
     expect(flattenedLabelStyle.color).toBe('#64748B');
     expect(onChange).not.toHaveBeenCalled();
   });
+
+  it('preserves computed accessibility semantics when runtime props try to override them', () => {
+    const onChange = jest.fn();
+    const props = {
+      checked: true,
+      disabled: true,
+      onChange,
+      accessibilityRole: 'button',
+      accessibilityState: { checked: false, disabled: false },
+    } as any;
+    const { getByRole } = render(<Checkbox {...props} />);
+    const checkbox = getByRole('checkbox');
+
+    expect(checkbox.props.accessibilityRole).toBe('checkbox');
+    expect(checkbox.props.accessibilityState).toEqual({ checked: true, disabled: true });
+  });
 });

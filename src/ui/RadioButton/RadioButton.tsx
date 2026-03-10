@@ -47,6 +47,7 @@ export function RadioButton({
 
   return (
     <Pressable
+      {...rest}
       accessibilityRole="radio"
       accessibilityState={{ checked: selected, disabled }}
       disabled={disabled}
@@ -59,7 +60,6 @@ export function RadioButton({
         style,
       ]}
       testID={testID}
-      {...rest}
     >
       <View
         style={[

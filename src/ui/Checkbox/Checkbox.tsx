@@ -48,6 +48,7 @@ export function Checkbox({
 
   return (
     <Pressable
+      {...rest}
       accessibilityRole="checkbox"
       accessibilityState={{ checked, disabled }}
       disabled={disabled}
@@ -60,7 +61,6 @@ export function Checkbox({
         style,
       ]}
       testID={testID}
-      {...rest}
     >
       <View
         style={[

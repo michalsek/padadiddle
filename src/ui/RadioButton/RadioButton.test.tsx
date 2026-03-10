@@ -44,4 +44,20 @@ describe('RadioButton', () => {
     expect(flattenedLabelStyle.color).toBe('#64748B');
     expect(onSelect).not.toHaveBeenCalled();
   });
+
+  it('preserves computed accessibility semantics when runtime props try to override them', () => {
+    const onSelect = jest.fn();
+    const props = {
+      selected: true,
+      disabled: true,
+      onSelect,
+      accessibilityRole: 'button',
+      accessibilityState: { checked: false, disabled: false },
+    } as any;
+    const { getByRole } = render(<RadioButton {...props} />);
+    const radio = getByRole('radio');
+
+    expect(radio.props.accessibilityRole).toBe('radio');
+    expect(radio.props.accessibilityState).toEqual({ checked: true, disabled: true });
+  });
 });

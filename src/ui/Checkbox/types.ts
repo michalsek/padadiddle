@@ -8,4 +8,7 @@ export type CheckboxProps = {
   style?: StyleProp<ViewStyle>;
   labelStyle?: StyleProp<TextStyle>;
   testID?: string;
-} & Omit<PressableProps, 'onPress' | 'style' | 'testID'>;
+} & Omit<
+  PressableProps,
+  'accessibilityRole' | 'accessibilityState' | 'children' | 'disabled' | 'onPress' | 'style' | 'testID'
+>;
