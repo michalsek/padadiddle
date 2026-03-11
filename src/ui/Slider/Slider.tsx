@@ -1,13 +1,20 @@
-import { useEffect, useState } from 'react';
-import { Text as NativeText, View } from 'react-native';
+import { useEffect, useMemo } from 'react';
+import {
+  Text as NativeText,
+  TextInput,
+  type TextInputProps,
+  View,
+} from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { scheduleOnRN } from 'react-native-worklets';
 import Animated, {
   Easing,
+  useAnimatedProps,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 
 import { createStyleSheet, useStyles } from '../../theme';
 import { useTheme } from '../../theme/useTheme';
@@ -32,6 +39,13 @@ import {
   normalizeSliderValue,
 } from './utils';
 
+type SliderValueAnimatedProps = TextInputProps & {
+  text?: string;
+  defaultValue?: string;
+};
+
+const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
+
 /**
  * Renders a controlled themed slider with tap and drag interaction support.
  * Input parameters:
@@ -45,8 +59,6 @@ import {
  * - `style`/`labelStyle`/`valueStyle`: optional style overrides merged after themed defaults.
  * - `testID`: optional stable root identifier used to derive child test ids.
  * - `...rest`: additional React Native `View` props forwarded to the interactive track.
- * Output:
- * - A slider with current value text and themed track/fill/thumb styling.
  * Logic summary:
  * - Normalizes incoming values so controlled rendering always matches legal step boundaries.
  * - Measures the track width once layout is known, then maps responder positions back to values.
@@ -69,63 +81,67 @@ export function Slider({
 }: SliderProps) {
   const styles = useStyles(styleSheet);
   const theme = useTheme();
-  const [isPressed, setIsPressed] = useState(false);
-  const [trackWidth, setTrackWidth] = useState(0);
   const normalizedValue = normalizeSliderValue(value, min, max, step);
-  const ratio = getSliderRatio(normalizedValue, min, max);
   const palette = getSliderPalette(theme, variant, disabled);
-  const animatedRatio = useSharedValue(ratio);
-  const animatedTrackWidth = useSharedValue(trackWidth);
+  const animatedTrackWidth = useSharedValue(0);
   const animatedCurrentValue = useSharedValue(normalizedValue);
+  const committedValue = useSharedValue(normalizedValue);
+  const isGestureActive = useSharedValue(false);
+  const pressedProgress = useSharedValue(0);
 
   useEffect(() => {
-    animatedRatio.value = withTiming(ratio, {
-      duration: SliderAnimationDuration,
-      easing: Easing.out(Easing.quad),
-    });
-    animatedCurrentValue.value = normalizedValue;
-  }, [animatedCurrentValue, animatedRatio, normalizedValue, ratio]);
+    committedValue.value = normalizedValue;
 
-  useEffect(() => {
-    animatedTrackWidth.value = trackWidth;
-  }, [animatedTrackWidth, trackWidth]);
-
-  function applyPosition(positionX: number) {
-    'worklet';
-
-    if (disabled || animatedTrackWidth.value <= 0) {
+    if (isGestureActive.value) {
       return;
     }
 
-    const nextValue = getSliderValueFromPosition(
-      positionX,
-      animatedTrackWidth.value,
-      min,
-      max,
-      step,
-    );
-    const nextRatio = getSliderRatio(nextValue, min, max);
-    const previousValue = animatedCurrentValue.value;
-
-    animatedRatio.value = withTiming(nextRatio, {
+    animatedCurrentValue.value = withTiming(normalizedValue, {
       duration: SliderAnimationDuration,
-      easing: Easing.out(Easing.quad),
+      easing: Easing.out(Easing.linear),
     });
-    animatedCurrentValue.value = nextValue;
+  }, [animatedCurrentValue, committedValue, isGestureActive, normalizedValue]);
 
-    if (nextValue !== previousValue) {
-      scheduleOnRN(onChange, nextValue);
+  useEffect(() => {
+    if (!disabled) {
+      return;
     }
-  }
+
+    pressedProgress.value = 0;
+  }, [disabled, pressedProgress]);
+
+  const animatedRatio = useDerivedValue(() =>
+    getSliderRatio(animatedCurrentValue.value, min, max),
+  );
+
+  const animatedValueProps = useAnimatedProps<SliderValueAnimatedProps>(() => {
+    const nextValue = String(animatedCurrentValue.value);
+
+    return {
+      defaultValue: nextValue,
+      text: nextValue,
+    };
+  });
 
   const animatedFillStyle = useAnimatedStyle(() => ({
     width: `${animatedRatio.value * 100}%`,
   }));
 
+  const animatedContainerStyle = useAnimatedStyle(() => ({
+    opacity: disabled
+      ? SliderDisabledOpacity
+      : pressedProgress.value
+        ? SliderPressedOpacity
+        : 1,
+  }));
+
   const animatedThumbStyle = useAnimatedStyle(() => ({
     transform: (() => {
       const clampedRatio = Math.max(0, Math.min(1, animatedRatio.value));
-      const maxTranslate = Math.max(0, animatedTrackWidth.value - SliderThumbSize);
+      const maxTranslate = Math.max(
+        0,
+        animatedTrackWidth.value - SliderThumbSize,
+      );
 
       return [
         {
@@ -135,28 +151,87 @@ export function Slider({
     })(),
   }));
 
-  const panGesture = Gesture.Pan()
-    .enabled(!disabled)
-    .minDistance(0)
-    .withTestId(testID ? `${testID}-gesture` : 'slider-gesture')
-    .onBegin((event) => {
-      scheduleOnRN(setIsPressed, true);
-      applyPosition(event.x);
-    })
-    .onUpdate((event) => {
-      applyPosition(event.x);
-    })
-    .onFinalize(() => {
-      scheduleOnRN(setIsPressed, false);
-    });
+  /**
+   * Builds the pan gesture used by the slider track.
+   * Input parameters: none. The worklet closes over the latest slider props and shared values.
+   * Output:
+   * - A stable pan gesture instance that updates internal state during movement and commits once on finalize.
+   * Logic summary:
+   * - Memoizes the gesture so press-state rerenders do not recreate handlers mid-drag.
+   * - Updates only the internal shared value during begin/update events.
+   * - Commits the finalized value through `onChange` exactly once when the gesture ends.
+   */
+  const gesture = useMemo(
+    () =>
+      Gesture.Pan()
+        .enabled(!disabled)
+        .minDistance(0)
+        .withTestId(testID ? `${testID}-gesture` : 'slider-gesture')
+        .onBegin((event) => {
+          'worklet';
+
+          isGestureActive.value = true;
+          pressedProgress.value = 1;
+
+          if (animatedTrackWidth.value <= 0) {
+            return;
+          }
+
+          animatedCurrentValue.value = getSliderValueFromPosition(
+            event.x,
+            animatedTrackWidth.value,
+            min,
+            max,
+            step,
+          );
+        })
+        .onUpdate((event) => {
+          'worklet';
+
+          if (disabled || animatedTrackWidth.value <= 0) {
+            return;
+          }
+
+          animatedCurrentValue.value = getSliderValueFromPosition(
+            event.x,
+            animatedTrackWidth.value,
+            min,
+            max,
+            step,
+          );
+        })
+        .onFinalize(() => {
+          'worklet';
+
+          isGestureActive.value = false;
+          pressedProgress.value = 0;
+
+          const nextValue = animatedCurrentValue.value;
+
+          if (nextValue === committedValue.value) {
+            return;
+          }
+
+          committedValue.value = nextValue;
+          scheduleOnRN(onChange, nextValue);
+        }),
+    [
+      animatedCurrentValue,
+      animatedTrackWidth,
+      committedValue,
+      disabled,
+      isGestureActive,
+      max,
+      min,
+      onChange,
+      step,
+      testID,
+    ],
+  );
 
   return (
-    <View
-      style={[
-        styles.container,
-        { opacity: disabled ? SliderDisabledOpacity : isPressed ? SliderPressedOpacity : 1 },
-        style,
-      ]}
+    <Animated.View
+      style={[styles.container, animatedContainerStyle, style]}
       testID={testID}
     >
       <View style={styles.header}>
@@ -166,52 +241,55 @@ export function Slider({
         >
           {label ?? 'Value'}
         </NativeText>
-        <NativeText
+        <AnimatedTextInput
+          animatedProps={animatedValueProps}
+          defaultValue={String(normalizedValue)}
+          editable={false}
+          pointerEvents="none"
           style={[styles.value, { color: palette.valueColor }, valueStyle]}
           testID={testID ? `${testID}-value` : undefined}
-        >
-          {normalizedValue}
-        </NativeText>
+        />
       </View>
 
-      <GestureDetector gesture={panGesture}>
-        <View
-          {...rest}
-          onLayout={(event) => {
-            const nextTrackWidth = event.nativeEvent.layout.width;
+      <GestureDetector gesture={gesture}>
+        <View collapsable={false} style={styles.touchArea}>
+          <View
+            {...rest}
+            onLayout={(event) => {
+              const nextTrackWidth = event.nativeEvent.layout.width;
 
-            setTrackWidth(nextTrackWidth);
-            animatedTrackWidth.value = nextTrackWidth;
-          }}
-          style={[styles.track, { backgroundColor: palette.trackColor }]}
-          testID={testID ? `${testID}-track` : undefined}
-        >
-          <Animated.View
-            pointerEvents="none"
-            style={[
-              styles.fill,
-              {
-                backgroundColor: palette.fillColor,
-              },
-              animatedFillStyle,
-            ]}
-            testID={testID ? `${testID}-fill` : undefined}
-          />
-          <Animated.View
-            pointerEvents="none"
-            style={[
-              styles.thumb,
-              {
-                backgroundColor: palette.thumbColor,
-                borderColor: palette.thumbBorderColor,
-              },
-              animatedThumbStyle,
-            ]}
-            testID={testID ? `${testID}-thumb` : undefined}
-          />
+              animatedTrackWidth.value = nextTrackWidth;
+            }}
+            style={[styles.track, { backgroundColor: palette.trackColor }]}
+            testID={testID ? `${testID}-track` : undefined}
+          >
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.fill,
+                {
+                  backgroundColor: palette.fillColor,
+                },
+                animatedFillStyle,
+              ]}
+              testID={testID ? `${testID}-fill` : undefined}
+            />
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.thumb,
+                {
+                  backgroundColor: palette.thumbColor,
+                  borderColor: palette.thumbBorderColor,
+                },
+                animatedThumbStyle,
+              ]}
+              testID={testID ? `${testID}-thumb` : undefined}
+            />
+          </View>
         </View>
       </GestureDetector>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -233,6 +311,13 @@ const styleSheet = createStyleSheet((theme) => ({
   value: {
     fontSize: theme.typography.sm,
     fontWeight: SliderValueFontWeight,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    textAlign: 'right',
+  },
+  touchArea: {
+    minHeight: SliderThumbSize + SliderThumbBorderWidth * 2,
+    justifyContent: 'center',
   },
   track: {
     height: SliderTrackHeight,
