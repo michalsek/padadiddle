@@ -9,8 +9,8 @@ import {
 import { Slider } from './Slider';
 
 describe('Slider', () => {
-  it('renders label text and the normalized current value', () => {
-    const { getByTestId } = render(
+  it('renders and updates the normalized current value through animated input props', () => {
+    const { getByTestId, rerender } = render(
       <Slider
         label="Tempo"
         max={240}
@@ -22,10 +22,25 @@ describe('Slider', () => {
     );
 
     expect(getByTestId('slider-label').props.children).toBe('Tempo');
-    expect(getByTestId('slider-value').props.children).toBe(121);
+    expect(getByTestId('slider-value').props.defaultValue).toBe('121');
+    expect(getByTestId('slider-value').props.animatedProps.text).toBe('121');
+
+    rerender(
+      <Slider
+        label="Tempo"
+        max={240}
+        min={40}
+        onChange={() => undefined}
+        testID="slider"
+        value={130}
+      />,
+    );
+
+    expect(getByTestId('slider-value').props.defaultValue).toBe('130');
+    expect(getByTestId('slider-value').props.animatedProps.text).toBe('130');
   });
 
-  it('calls onChange with the snapped value from track interaction', async () => {
+  it('calls onChange once with the finalized value for a gesture', async () => {
     const onChange = jest.fn();
     const { getByTestId } = render(
       <Slider
@@ -50,6 +65,7 @@ describe('Slider', () => {
     });
 
     expect(onChange).toHaveBeenCalledWith(240);
+    expect(onChange).toHaveBeenCalledTimes(1);
   });
 
   it('applies disabled styling and blocks interaction', async () => {
