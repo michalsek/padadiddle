@@ -4,10 +4,22 @@ export type SliderVariant = 'primary' | 'secondary' | 'ghost';
 
 export type SliderProps = Omit<
   ViewProps,
+  | 'accessible'
+  | 'accessibilityActions'
+  | 'accessibilityElementsHidden'
+  | 'accessibilityHint'
+  | 'accessibilityIgnoresInvertColors'
+  | 'accessibilityLabel'
+  | 'accessibilityLabelledBy'
+  | 'accessibilityLanguage'
+  | 'accessibilityLiveRegion'
   | 'accessibilityRole'
+  | 'accessibilityShowsLargeContentViewer'
   | 'accessibilityState'
   | 'accessibilityValue'
+  | 'accessibilityViewIsModal'
   | 'onLayout'
+  | 'onAccessibilityAction'
   | 'onMoveShouldSetResponder'
   | 'onMoveShouldSetResponderCapture'
   | 'onResponderEnd'
