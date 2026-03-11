@@ -1,11 +1,11 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo } from 'react';
 import {
   Text as NativeText,
   TextInput,
   type TextInputProps,
   View,
-} from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
+} from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   Easing,
   useAnimatedProps,
@@ -13,11 +13,11 @@ import Animated, {
   useDerivedValue,
   useSharedValue,
   withTiming,
-} from "react-native-reanimated";
-import { scheduleOnRN } from "react-native-worklets";
+} from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 
-import { createStyleSheet, useStyles } from "../../theme";
-import { useTheme } from "../../theme/useTheme";
+import { createStyleSheet, useStyles } from '../../theme';
+import { useTheme } from '../../theme/useTheme';
 import {
   SliderAnimationDuration,
   SliderDefaultStep,
@@ -30,14 +30,14 @@ import {
   SliderThumbSize,
   SliderTrackHeight,
   SliderValueFontWeight,
-} from "./constants";
-import type { SliderProps } from "./types";
+} from './constants';
+import type { SliderProps } from './types';
 import {
   getSliderPalette,
   getSliderRatio,
   getSliderValueFromPosition,
   normalizeSliderValue,
-} from "./utils";
+} from './utils';
 
 type SliderValueAnimatedProps = TextInputProps & {
   text?: string;
@@ -166,9 +166,9 @@ export function Slider({
       Gesture.Pan()
         .enabled(!disabled)
         .minDistance(0)
-        .withTestId(testID ? `${testID}-gesture` : "slider-gesture")
+        .withTestId(testID ? `${testID}-gesture` : 'slider-gesture')
         .onBegin((event) => {
-          "worklet";
+          'worklet';
 
           isGestureActive.value = true;
           pressedProgress.value = 1;
@@ -186,7 +186,7 @@ export function Slider({
           );
         })
         .onUpdate((event) => {
-          "worklet";
+          'worklet';
 
           if (disabled || animatedTrackWidth.value <= 0) {
             return;
@@ -201,7 +201,7 @@ export function Slider({
           );
         })
         .onFinalize(() => {
-          "worklet";
+          'worklet';
 
           isGestureActive.value = false;
           pressedProgress.value = 0;
@@ -239,7 +239,7 @@ export function Slider({
           style={[styles.label, { color: palette.labelColor }, labelStyle]}
           testID={testID ? `${testID}-label` : undefined}
         >
-          {label ?? "Value"}
+          {label ?? 'Value'}
         </NativeText>
         <AnimatedTextInput
           animatedProps={animatedValueProps}
@@ -295,13 +295,13 @@ export function Slider({
 
 const styleSheet = createStyleSheet((theme) => ({
   container: {
-    width: "100%",
+    width: '100%',
     gap: theme.spacing.sm,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     gap: SliderHeaderGap,
   },
   label: {
@@ -313,27 +313,27 @@ const styleSheet = createStyleSheet((theme) => ({
     fontWeight: SliderValueFontWeight,
     paddingHorizontal: 0,
     paddingVertical: 0,
-    textAlign: "right",
+    textAlign: 'right',
   },
   touchArea: {
     minHeight: SliderThumbSize + SliderThumbBorderWidth * 2,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   track: {
     height: SliderTrackHeight,
     borderRadius: theme.radius.full,
-    justifyContent: "center",
-    overflow: "visible",
+    justifyContent: 'center',
+    overflow: 'visible',
   },
   fill: {
-    position: "absolute",
+    position: 'absolute',
     left: 0,
     top: 0,
     bottom: 0,
     borderRadius: theme.radius.full,
   },
   thumb: {
-    position: "absolute",
+    position: 'absolute',
     top: (SliderTrackHeight - SliderThumbSize) / 2,
     left: 0,
     width: SliderThumbSize,
