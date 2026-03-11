@@ -329,7 +329,8 @@ export default function UiStorybookScreen() {
             <Text variant="muted">Usage</Text>
             <Column gap={8} testID="storybook-progressbar-usage">
               <Text>
-                Practice completion: {Math.round(normalizedPracticeProgress * 100)}%
+                Practice completion:{" "}
+                {Math.round(normalizedPracticeProgress * 100)}%
               </Text>
               <ProgressBar
                 progress={normalizedPracticeProgress}
@@ -453,9 +454,7 @@ const styleSheet = createStyleSheet((theme) => ({
     gap: 18,
     paddingBottom: theme.spacing.xl,
   },
-  section: {
-    borderWidth: 1,
-  },
+  section: {},
   embeddedScreen: {
     flex: 0,
     minHeight: 72,
