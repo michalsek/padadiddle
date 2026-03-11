@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Text as NativeText,
   TextInput,
@@ -102,58 +102,6 @@ export function Slider({
     });
   }, [animatedCurrentValue, committedValue, isGestureActive, normalizedValue]);
 
-  /**
-   * Updates the slider's internal shared value from a gesture-local track position.
-   * Input parameters:
-   * - `positionX`: horizontal touch position relative to the measured track width.
-   * Output:
-   * - None. The function mutates only the internal shared value used for rendering.
-   * Logic summary:
-   * - Ignores updates while disabled or before layout reports a usable track width.
-   * - Converts the gesture coordinate into a snapped slider value within bounds.
-   * - Leaves external `onChange` notification to the finalize phase.
-   */
-  function updateInternalValue(positionX: number) {
-    "worklet";
-
-    if (disabled || animatedTrackWidth.value <= 0) {
-      return;
-    }
-
-    animatedCurrentValue.value = getSliderValueFromPosition(
-      positionX,
-      animatedTrackWidth.value,
-      min,
-      max,
-      step,
-    );
-  }
-
-  /**
-   * Finalizes the current gesture and commits the latest internal slider value.
-   * Input parameters: none.
-   * Output:
-   * - None. The function schedules `onChange` exactly once when the value changed.
-   * Logic summary:
-   * - Marks the gesture as inactive so future controlled prop updates can resync the UI.
-   * - Compares the current internal value with the last committed controlled value.
-   * - Schedules `onChange` only when the finalized value differs from the committed value.
-   */
-  function finalizeValueChange() {
-    "worklet";
-
-    isGestureActive.value = false;
-
-    const nextValue = animatedCurrentValue.value;
-
-    if (nextValue === committedValue.value) {
-      return;
-    }
-
-    committedValue.value = nextValue;
-    scheduleOnRN(onChange, nextValue);
-  }
-
   const animatedRatio = useDerivedValue(() =>
     getSliderRatio(animatedCurrentValue.value, min, max),
   );
@@ -187,22 +135,83 @@ export function Slider({
     })(),
   }));
 
-  const gesture = Gesture.Pan()
-    .enabled(!disabled)
-    .minDistance(0)
-    .withTestId(testID ? `${testID}-gesture` : "slider-gesture")
-    .onBegin((event) => {
-      isGestureActive.value = true;
-      scheduleOnRN(setIsPressed, true);
-      updateInternalValue(event.x);
-    })
-    .onUpdate((event) => {
-      updateInternalValue(event.x);
-    })
-    .onFinalize(() => {
-      scheduleOnRN(setIsPressed, false);
-      finalizeValueChange();
-    });
+  /**
+   * Builds the pan gesture used by the slider track.
+   * Input parameters: none. The worklet closes over the latest slider props and shared values.
+   * Output:
+   * - A stable pan gesture instance that updates internal state during movement and commits once on finalize.
+   * Logic summary:
+   * - Memoizes the gesture so press-state rerenders do not recreate handlers mid-drag.
+   * - Updates only the internal shared value during begin/update events.
+   * - Commits the finalized value through `onChange` exactly once when the gesture ends.
+   */
+  const gesture = useMemo(
+    () =>
+      Gesture.Pan()
+        .enabled(!disabled)
+        .minDistance(0)
+        .withTestId(testID ? `${testID}-gesture` : "slider-gesture")
+        .onBegin((event) => {
+          "worklet";
+
+          isGestureActive.value = true;
+          scheduleOnRN(setIsPressed, true);
+
+          if (animatedTrackWidth.value <= 0) {
+            return;
+          }
+
+          animatedCurrentValue.value = getSliderValueFromPosition(
+            event.x,
+            animatedTrackWidth.value,
+            min,
+            max,
+            step,
+          );
+        })
+        .onUpdate((event) => {
+          "worklet";
+
+          if (disabled || animatedTrackWidth.value <= 0) {
+            return;
+          }
+
+          animatedCurrentValue.value = getSliderValueFromPosition(
+            event.x,
+            animatedTrackWidth.value,
+            min,
+            max,
+            step,
+          );
+        })
+        .onFinalize(() => {
+          "worklet";
+
+          isGestureActive.value = false;
+          scheduleOnRN(setIsPressed, false);
+
+          const nextValue = animatedCurrentValue.value;
+
+          if (nextValue === committedValue.value) {
+            return;
+          }
+
+          committedValue.value = nextValue;
+          scheduleOnRN(onChange, nextValue);
+        }),
+    [
+      animatedCurrentValue,
+      animatedTrackWidth,
+      committedValue,
+      disabled,
+      isGestureActive,
+      max,
+      min,
+      onChange,
+      step,
+      testID,
+    ],
+  );
 
   return (
     <View
