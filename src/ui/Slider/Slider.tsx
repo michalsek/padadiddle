@@ -78,15 +78,6 @@ export function Slider({
   const animatedTrackWidth = useSharedValue(trackWidth);
   const animatedCurrentValue = useSharedValue(normalizedValue);
 
-  /**
-   * Synchronizes the controlled slider value into a shared value used by animated styles.
-   * Input parameters: none.
-   * Output:
-   * - No direct return value; updates the shared ratio with a short timing animation.
-   * Logic summary:
-   * - Mirrors React-controlled value changes onto the UI thread.
-   * - Keeps fill and thumb movement smooth when parent state updates after interaction.
-   */
   useEffect(() => {
     animatedRatio.value = withTiming(ratio, {
       duration: SliderAnimationDuration,
@@ -95,30 +86,10 @@ export function Slider({
     animatedCurrentValue.value = normalizedValue;
   }, [animatedCurrentValue, animatedRatio, normalizedValue, ratio]);
 
-  /**
-   * Synchronizes measured track width into a shared value for thumb positioning worklets.
-   * Input parameters: none.
-   * Output:
-   * - No direct return value; mirrors the latest layout width to the UI thread.
-   * Logic summary:
-   * - Allows thumb translation to be computed inside animated styles without JS reads.
-   * - Keeps the animated thumb position aligned with responder-driven layout changes.
-   */
   useEffect(() => {
     animatedTrackWidth.value = trackWidth;
   }, [animatedTrackWidth, trackWidth]);
 
-  /**
-   * Applies a gesture position to the controlled slider value from a worklet callback.
-   * Input parameters:
-   * - `positionX`: local X coordinate from the active gesture event.
-   * Output:
-   * - No direct return value; animates shared values and invokes `onChange` through `scheduleOnRN`.
-   * Logic summary:
-   * - Reads track width and current value from shared values so the calculation stays on the UI thread.
-   * - Converts the touch location into a normalized stepped value using the measured track width.
-   * - Prevents redundant `onChange` calls when interaction lands on the current value.
-   */
   function applyPosition(positionX: number) {
     'worklet';
 
@@ -147,28 +118,10 @@ export function Slider({
     }
   }
 
-  /**
-   * Animates the slider fill width from the shared ratio.
-   * Input parameters: none.
-   * Output:
-   * - Animated style object for the filled track segment.
-   * Logic summary:
-   * - Reads only shared values inside the worklet.
-   * - Keeps width interpolation on the UI thread for smoother updates.
-   */
   const animatedFillStyle = useAnimatedStyle(() => ({
     width: `${animatedRatio.value * 100}%`,
   }));
 
-  /**
-   * Animates the thumb translation using the shared ratio and measured track width.
-   * Input parameters: none.
-   * Output:
-   * - Animated style object for horizontal thumb positioning.
-   * Logic summary:
-   * - Derives thumb offset entirely from shared values.
-   * - Uses transform-based movement so the thumb stays animation-driven.
-   */
   const animatedThumbStyle = useAnimatedStyle(() => ({
     transform: [
       {
@@ -180,16 +133,6 @@ export function Slider({
     ],
   }));
 
-  /**
-   * Builds the gesture-handler pan gesture used for both taps and drags on the slider track.
-   * Input parameters: none.
-   * Output:
-   * - Gesture-handler configuration consumed by `GestureDetector`.
-   * Logic summary:
-   * - Activates immediately so a simple tap updates the slider without extra gesture types.
-   * - Routes value calculations through the worklet-based `applyPosition` helper.
-   * - Uses `scheduleOnRN` only for the pressed visual state and React-side callbacks.
-   */
   const panGesture = Gesture.Pan()
     .enabled(!disabled)
     .minDistance(0)
