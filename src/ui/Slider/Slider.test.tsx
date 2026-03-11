@@ -25,7 +25,7 @@ describe('Slider', () => {
     expect(getByTestId('slider-value').props.children).toBe(121);
   });
 
-  it('calls onChange with the snapped value from track interaction', () => {
+  it('calls onChange with the snapped value from track interaction', async () => {
     const onChange = jest.fn();
     const { getByRole } = render(
       <Slider
@@ -39,19 +39,20 @@ describe('Slider', () => {
     );
     const slider = getByRole('adjustable');
 
-    act(() => {
+    await act(async () => {
       fireEvent(slider, 'layout', { nativeEvent: { layout: { width: 100 } } });
       fireGestureHandler(getByGestureTestId('slider-gesture'), [
         { state: State.BEGAN, x: 100 },
         { state: State.ACTIVE, x: 100 },
         { state: State.END, x: 100 },
       ]);
+      await Promise.resolve();
     });
 
     expect(onChange).toHaveBeenCalledWith(240);
   });
 
-  it('applies disabled accessibility semantics and blocks interaction', () => {
+  it('applies disabled accessibility semantics and blocks interaction', async () => {
     const onChange = jest.fn();
     const { getByRole, getByTestId } = render(
       <Slider
@@ -68,13 +69,14 @@ describe('Slider', () => {
     const flattenedFillStyle = StyleSheet.flatten(getByTestId('slider-fill').props.style);
     const flattenedThumbStyle = StyleSheet.flatten(getByTestId('slider-thumb').props.style);
 
-    act(() => {
+    await act(async () => {
       fireEvent(slider, 'layout', { nativeEvent: { layout: { width: 100 } } });
       fireGestureHandler(getByGestureTestId('slider-gesture'), [
         { state: State.BEGAN, x: 100 },
         { state: State.ACTIVE, x: 100 },
         { state: State.END, x: 100 },
       ]);
+      await Promise.resolve();
     });
 
     expect(slider.props.accessibilityState).toEqual({ disabled: true });

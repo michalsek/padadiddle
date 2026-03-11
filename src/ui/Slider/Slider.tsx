@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Text as NativeText, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { scheduleOnRN } from 'react-native-worklets';
 import Animated, {
   Easing,
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -113,7 +113,7 @@ export function Slider({
    * Input parameters:
    * - `positionX`: local X coordinate from the active gesture event.
    * Output:
-   * - No direct return value; animates shared values and invokes `onChange` through `runOnJS`.
+   * - No direct return value; animates shared values and invokes `onChange` through `scheduleOnRN`.
    * Logic summary:
    * - Reads track width and current value from shared values so the calculation stays on the UI thread.
    * - Converts the touch location into a normalized stepped value using the measured track width.
@@ -143,7 +143,7 @@ export function Slider({
     animatedCurrentValue.value = nextValue;
 
     if (nextValue !== previousValue) {
-      runOnJS(onChange)(nextValue);
+      scheduleOnRN(onChange, nextValue);
     }
   }
 
@@ -188,21 +188,21 @@ export function Slider({
    * Logic summary:
    * - Activates immediately so a simple tap updates the slider without extra gesture types.
    * - Routes value calculations through the worklet-based `applyPosition` helper.
-   * - Uses `runOnJS` only for the pressed visual state and the external `onChange` callback.
+   * - Uses `scheduleOnRN` only for the pressed visual state and React-side callbacks.
    */
   const panGesture = Gesture.Pan()
     .enabled(!disabled)
     .minDistance(0)
     .withTestId(testID ? `${testID}-gesture` : 'slider-gesture')
     .onBegin((event) => {
-      runOnJS(setIsPressed)(true);
+      scheduleOnRN(setIsPressed, true);
       applyPosition(event.x);
     })
     .onUpdate((event) => {
       applyPosition(event.x);
     })
     .onFinalize(() => {
-      runOnJS(setIsPressed)(false);
+      scheduleOnRN(setIsPressed, false);
     });
 
   return (
