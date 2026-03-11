@@ -52,7 +52,7 @@ describe('Slider', () => {
     expect(onChange).toHaveBeenCalledWith(240);
   });
 
-  it('applies disabled accessibility semantics and blocks interaction', async () => {
+  it('applies disabled styling and blocks interaction', async () => {
     const onChange = jest.fn();
     const { getByTestId } = render(
       <Slider

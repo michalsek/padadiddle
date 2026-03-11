@@ -38,8 +38,9 @@ export function normalizeSliderValue(
   const safeMax = Math.max(min, max);
   const clampedValue = Math.max(safeMin, Math.min(safeMax, value));
   const stepCount = Math.round((clampedValue - safeMin) / safeStep);
+  const snappedValue = safeMin + stepCount * safeStep;
 
-  return safeMin + stepCount * safeStep;
+  return Math.max(safeMin, Math.min(safeMax, snappedValue));
 }
 
 /**
@@ -93,14 +94,17 @@ export function getSliderValueFromPosition(
 ): number {
   'worklet';
 
+  const safeMin = Math.min(min, max);
+  const safeMax = Math.max(min, max);
+
   if (trackWidth <= 0) {
-    return normalizeSliderValue(min, min, max, step);
+    return normalizeSliderValue(safeMin, safeMin, safeMax, step);
   }
 
   const boundedRatio = Math.max(0, Math.min(1, positionX / trackWidth));
-  const rawValue = min + boundedRatio * (max - min);
+  const rawValue = safeMin + boundedRatio * (safeMax - safeMin);
 
-  return normalizeSliderValue(rawValue, min, max, step);
+  return normalizeSliderValue(rawValue, safeMin, safeMax, step);
 }
 
 /**

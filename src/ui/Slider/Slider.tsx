@@ -123,14 +123,16 @@ export function Slider({
   }));
 
   const animatedThumbStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        translateX: Math.max(
-          0,
-          animatedRatio.value * animatedTrackWidth.value - SliderThumbSize / 2,
-        ),
-      },
-    ],
+    transform: (() => {
+      const clampedRatio = Math.max(0, Math.min(1, animatedRatio.value));
+      const maxTranslate = Math.max(0, animatedTrackWidth.value - SliderThumbSize);
+
+      return [
+        {
+          translateX: clampedRatio * maxTranslate,
+        },
+      ];
+    })(),
   }));
 
   const panGesture = Gesture.Pan()

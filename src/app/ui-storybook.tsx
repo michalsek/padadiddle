@@ -29,6 +29,8 @@ type StorybookSectionProps = {
 };
 
 const RHYTHM_PARTS = ["Kick", "Snare", "Hi-hat", "Ride"];
+const PRACTICE_TEMPO_MIN = 40;
+const PRACTICE_TEMPO_MAX = 240;
 
 /**
  * Renders a reusable section wrapper for a UI component showcase block.
@@ -79,7 +81,9 @@ export default function UiStorybookScreen() {
   const [selectedSubdivision, setSelectedSubdivision] = useState<
     "quarters" | "eighths" | "triplets"
   >("eighths");
-  const normalizedPracticeProgress = (practiceTempo - 40) / 200;
+  const normalizedPracticeProgress =
+    (practiceTempo - PRACTICE_TEMPO_MIN) /
+    (PRACTICE_TEMPO_MAX - PRACTICE_TEMPO_MIN);
 
   return (
     <Screen scrollable contentContainerStyle={styles.content}>
@@ -275,8 +279,8 @@ export default function UiStorybookScreen() {
               <Text>Tempo target: {practiceTempo} BPM</Text>
               <Slider
                 label="Tempo"
-                max={240}
-                min={40}
+                max={PRACTICE_TEMPO_MAX}
+                min={PRACTICE_TEMPO_MIN}
                 onChange={setPracticeTempo}
                 testID="storybook-slider-control"
                 value={practiceTempo}
