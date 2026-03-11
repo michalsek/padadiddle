@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import {
   Text as NativeText,
   TextInput,
@@ -81,13 +81,13 @@ export function Slider({
 }: SliderProps) {
   const styles = useStyles(styleSheet);
   const theme = useTheme();
-  const [isPressed, setIsPressed] = useState(false);
   const normalizedValue = normalizeSliderValue(value, min, max, step);
   const palette = getSliderPalette(theme, variant, disabled);
   const animatedTrackWidth = useSharedValue(0);
   const animatedCurrentValue = useSharedValue(normalizedValue);
   const committedValue = useSharedValue(normalizedValue);
   const isGestureActive = useSharedValue(false);
+  const pressedProgress = useSharedValue(0);
 
   useEffect(() => {
     committedValue.value = normalizedValue;
@@ -101,6 +101,14 @@ export function Slider({
       easing: Easing.out(Easing.linear),
     });
   }, [animatedCurrentValue, committedValue, isGestureActive, normalizedValue]);
+
+  useEffect(() => {
+    if (!disabled) {
+      return;
+    }
+
+    pressedProgress.value = 0;
+  }, [disabled, pressedProgress]);
 
   const animatedRatio = useDerivedValue(() =>
     getSliderRatio(animatedCurrentValue.value, min, max),
@@ -117,6 +125,14 @@ export function Slider({
 
   const animatedFillStyle = useAnimatedStyle(() => ({
     width: `${animatedRatio.value * 100}%`,
+  }));
+
+  const animatedContainerStyle = useAnimatedStyle(() => ({
+    opacity: disabled
+      ? SliderDisabledOpacity
+      : pressedProgress.value
+        ? SliderPressedOpacity
+        : 1,
   }));
 
   const animatedThumbStyle = useAnimatedStyle(() => ({
@@ -155,7 +171,7 @@ export function Slider({
           "worklet";
 
           isGestureActive.value = true;
-          scheduleOnRN(setIsPressed, true);
+          pressedProgress.value = 1;
 
           if (animatedTrackWidth.value <= 0) {
             return;
@@ -188,7 +204,7 @@ export function Slider({
           "worklet";
 
           isGestureActive.value = false;
-          scheduleOnRN(setIsPressed, false);
+          pressedProgress.value = 0;
 
           const nextValue = animatedCurrentValue.value;
 
@@ -214,16 +230,10 @@ export function Slider({
   );
 
   return (
-    <View
+    <Animated.View
       style={[
         styles.container,
-        {
-          opacity: disabled
-            ? SliderDisabledOpacity
-            : isPressed
-              ? SliderPressedOpacity
-              : 1,
-        },
+        animatedContainerStyle,
         style,
       ]}
       testID={testID}
@@ -281,7 +291,7 @@ export function Slider({
           />
         </View>
       </GestureDetector>
-    </View>
+    </Animated.View>
   );
 }
 
