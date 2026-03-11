@@ -31,6 +31,8 @@ export function normalizeSliderValue(
   max: number,
   step: number,
 ): number {
+  'worklet';
+
   const safeStep = step > 0 ? step : 1;
   const safeMin = Math.min(min, max);
   const safeMax = Math.max(min, max);
@@ -54,6 +56,8 @@ export function normalizeSliderValue(
  * - Clamps the final ratio so rendering logic never overflows the track.
  */
 export function getSliderRatio(value: number, min: number, max: number): number {
+  'worklet';
+
   const safeMin = Math.min(min, max);
   const safeMax = Math.max(min, max);
   const range = safeMax - safeMin;
@@ -87,6 +91,8 @@ export function getSliderValueFromPosition(
   max: number,
   step: number,
 ): number {
+  'worklet';
+
   if (trackWidth <= 0) {
     return normalizeSliderValue(min, min, max, step);
   }

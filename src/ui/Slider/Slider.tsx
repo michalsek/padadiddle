@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Text as NativeText, View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   Easing,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -74,6 +76,7 @@ export function Slider({
   const palette = getSliderPalette(theme, variant, disabled);
   const animatedRatio = useSharedValue(ratio);
   const animatedTrackWidth = useSharedValue(trackWidth);
+  const animatedCurrentValue = useSharedValue(normalizedValue);
 
   /**
    * Synchronizes the controlled slider value into a shared value used by animated styles.
@@ -89,7 +92,8 @@ export function Slider({
       duration: SliderAnimationDuration,
       easing: Easing.out(Easing.quad),
     });
-  }, [animatedRatio, ratio]);
+    animatedCurrentValue.value = normalizedValue;
+  }, [animatedCurrentValue, animatedRatio, normalizedValue, ratio]);
 
   /**
    * Synchronizes measured track width into a shared value for thumb positioning worklets.
@@ -105,31 +109,41 @@ export function Slider({
   }, [animatedTrackWidth, trackWidth]);
 
   /**
-   * Applies a responder position to the controlled slider value.
+   * Applies a gesture position to the controlled slider value from a worklet callback.
    * Input parameters:
-   * - `positionX`: local X coordinate from the active responder event.
+   * - `positionX`: local X coordinate from the active gesture event.
    * Output:
-   * - No direct return value; invokes `onChange` when the computed value differs.
+   * - No direct return value; animates shared values and invokes `onChange` through `runOnJS`.
    * Logic summary:
-   * - Ignores interaction while disabled.
+   * - Reads track width and current value from shared values so the calculation stays on the UI thread.
    * - Converts the touch location into a normalized stepped value using the measured track width.
    * - Prevents redundant `onChange` calls when interaction lands on the current value.
    */
   function applyPosition(positionX: number) {
-    if (disabled) {
+    'worklet';
+
+    if (disabled || animatedTrackWidth.value <= 0) {
       return;
     }
 
-    const nextValue = getSliderValueFromPosition(positionX, trackWidth, min, max, step);
+    const nextValue = getSliderValueFromPosition(
+      positionX,
+      animatedTrackWidth.value,
+      min,
+      max,
+      step,
+    );
     const nextRatio = getSliderRatio(nextValue, min, max);
+    const previousValue = animatedCurrentValue.value;
 
     animatedRatio.value = withTiming(nextRatio, {
       duration: SliderAnimationDuration,
       easing: Easing.out(Easing.quad),
     });
+    animatedCurrentValue.value = nextValue;
 
-    if (nextValue !== normalizedValue) {
-      onChange(nextValue);
+    if (nextValue !== previousValue) {
+      runOnJS(onChange)(nextValue);
     }
   }
 
@@ -166,6 +180,31 @@ export function Slider({
     ],
   }));
 
+  /**
+   * Builds the gesture-handler pan gesture used for both taps and drags on the slider track.
+   * Input parameters: none.
+   * Output:
+   * - Gesture-handler configuration consumed by `GestureDetector`.
+   * Logic summary:
+   * - Activates immediately so a simple tap updates the slider without extra gesture types.
+   * - Routes value calculations through the worklet-based `applyPosition` helper.
+   * - Uses `runOnJS` only for the pressed visual state and the external `onChange` callback.
+   */
+  const panGesture = Gesture.Pan()
+    .enabled(!disabled)
+    .minDistance(0)
+    .withTestId(testID ? `${testID}-gesture` : 'slider-gesture')
+    .onBegin((event) => {
+      runOnJS(setIsPressed)(true);
+      applyPosition(event.x);
+    })
+    .onUpdate((event) => {
+      applyPosition(event.x);
+    })
+    .onFinalize(() => {
+      runOnJS(setIsPressed)(false);
+    });
+
   return (
     <View
       style={[
@@ -190,64 +229,52 @@ export function Slider({
         </NativeText>
       </View>
 
-      <View
-        {...rest}
-        accessibilityRole="adjustable"
-        accessibilityState={{ disabled }}
-        accessibilityValue={{
-          min: Math.min(min, max),
-          max: Math.max(min, max),
-          now: normalizedValue,
-          text: `${normalizedValue}`,
-        }}
-        accessible
-        onLayout={(event) => {
-          setTrackWidth(event.nativeEvent.layout.width);
-        }}
-        onMoveShouldSetResponder={() => !disabled}
-        onMoveShouldSetResponderCapture={() => !disabled}
-        onResponderGrant={(event) => {
-          setIsPressed(true);
-          applyPosition(event.nativeEvent.locationX);
-        }}
-        onResponderMove={(event) => {
-          applyPosition(event.nativeEvent.locationX);
-        }}
-        onResponderRelease={() => {
-          setIsPressed(false);
-        }}
-        onResponderTerminate={() => {
-          setIsPressed(false);
-        }}
-        onStartShouldSetResponder={() => !disabled}
-        onStartShouldSetResponderCapture={() => !disabled}
-        style={[styles.track, { backgroundColor: palette.trackColor }]}
-        testID={testID ? `${testID}-track` : undefined}
-      >
-        <Animated.View
-          pointerEvents="none"
-          style={[
-            styles.fill,
-            {
-              backgroundColor: palette.fillColor,
-            },
-            animatedFillStyle,
-          ]}
-          testID={testID ? `${testID}-fill` : undefined}
-        />
-        <Animated.View
-          pointerEvents="none"
-          style={[
-            styles.thumb,
-            {
-              backgroundColor: palette.thumbColor,
-              borderColor: palette.thumbBorderColor,
-            },
-            animatedThumbStyle,
-          ]}
-          testID={testID ? `${testID}-thumb` : undefined}
-        />
-      </View>
+      <GestureDetector gesture={panGesture}>
+        <View
+          {...rest}
+          accessibilityRole="adjustable"
+          accessibilityState={{ disabled }}
+          accessibilityValue={{
+            min: Math.min(min, max),
+            max: Math.max(min, max),
+            now: normalizedValue,
+            text: `${normalizedValue}`,
+          }}
+          accessible
+          onLayout={(event) => {
+            const nextTrackWidth = event.nativeEvent.layout.width;
+
+            setTrackWidth(nextTrackWidth);
+            animatedTrackWidth.value = nextTrackWidth;
+          }}
+          style={[styles.track, { backgroundColor: palette.trackColor }]}
+          testID={testID ? `${testID}-track` : undefined}
+        >
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              styles.fill,
+              {
+                backgroundColor: palette.fillColor,
+              },
+              animatedFillStyle,
+            ]}
+            testID={testID ? `${testID}-fill` : undefined}
+          />
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              styles.thumb,
+              {
+                backgroundColor: palette.thumbColor,
+                borderColor: palette.thumbBorderColor,
+              },
+              animatedThumbStyle,
+            ]}
+            testID={testID ? `${testID}-thumb` : undefined}
+          />
+        </View>
+      </GestureDetector>
     </View>
   );
 }

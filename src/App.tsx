@@ -1,4 +1,5 @@
 import { ExpoRoot, type RequireContext } from 'expo-router';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const context = (require as unknown as { context: (path: string) => RequireContext }).context('./app');
 
@@ -8,5 +9,9 @@ const context = (require as unknown as { context: (path: string) => RequireConte
  * enabling file-based navigation without using `expo-router/entry` as package main.
  */
 export default function App() {
-  return <ExpoRoot context={context} />;
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ExpoRoot context={context} />
+    </GestureHandlerRootView>
+  );
 }

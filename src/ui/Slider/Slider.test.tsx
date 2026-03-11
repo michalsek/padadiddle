@@ -1,5 +1,10 @@
 import { StyleSheet } from 'react-native';
-import { fireEvent, render } from '@testing-library/react-native';
+import { act, fireEvent, render } from '@testing-library/react-native';
+import { State } from 'react-native-gesture-handler';
+import {
+  fireGestureHandler,
+  getByGestureTestId,
+} from 'react-native-gesture-handler/jest-utils';
 
 import { Slider } from './Slider';
 
@@ -34,8 +39,14 @@ describe('Slider', () => {
     );
     const slider = getByRole('adjustable');
 
-    fireEvent(slider, 'layout', { nativeEvent: { layout: { width: 100 } } });
-    fireEvent(slider, 'responderGrant', { nativeEvent: { locationX: 100 } });
+    act(() => {
+      fireEvent(slider, 'layout', { nativeEvent: { layout: { width: 100 } } });
+      fireGestureHandler(getByGestureTestId('slider-gesture'), [
+        { state: State.BEGAN, x: 100 },
+        { state: State.ACTIVE, x: 100 },
+        { state: State.END, x: 100 },
+      ]);
+    });
 
     expect(onChange).toHaveBeenCalledWith(240);
   });
@@ -57,8 +68,14 @@ describe('Slider', () => {
     const flattenedFillStyle = StyleSheet.flatten(getByTestId('slider-fill').props.style);
     const flattenedThumbStyle = StyleSheet.flatten(getByTestId('slider-thumb').props.style);
 
-    fireEvent(slider, 'layout', { nativeEvent: { layout: { width: 100 } } });
-    fireEvent(slider, 'responderGrant', { nativeEvent: { locationX: 100 } });
+    act(() => {
+      fireEvent(slider, 'layout', { nativeEvent: { layout: { width: 100 } } });
+      fireGestureHandler(getByGestureTestId('slider-gesture'), [
+        { state: State.BEGAN, x: 100 },
+        { state: State.ACTIVE, x: 100 },
+        { state: State.END, x: 100 },
+      ]);
+    });
 
     expect(slider.props.accessibilityState).toEqual({ disabled: true });
     expect(flattenedFillStyle.backgroundColor).toBe('#111827CC');
