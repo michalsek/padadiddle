@@ -4,14 +4,12 @@ import { render } from '@testing-library/react-native';
 import { ProgressBar } from './ProgressBar';
 
 describe('ProgressBar', () => {
-  it('renders a clamped fill width and accessibility value', () => {
-    const { getByRole, getByTestId } = render(
+  it('renders a clamped fill width', () => {
+    const { getByTestId } = render(
       <ProgressBar progress={0.5} testID="progress" />,
     );
-    const progressBar = getByRole('progressbar');
     const flattenedFillStyle = StyleSheet.flatten(getByTestId('progress-fill').props.style);
 
-    expect(progressBar.props.accessibilityValue).toEqual({ min: 0, max: 100, now: 50 });
     expect(flattenedFillStyle.width).toBe('50%');
   });
 

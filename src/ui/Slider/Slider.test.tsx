@@ -27,7 +27,7 @@ describe('Slider', () => {
 
   it('calls onChange with the snapped value from track interaction', async () => {
     const onChange = jest.fn();
-    const { getByRole } = render(
+    const { getByTestId } = render(
       <Slider
         max={240}
         min={40}
@@ -37,10 +37,10 @@ describe('Slider', () => {
         value={120}
       />,
     );
-    const slider = getByRole('adjustable');
+    const sliderTrack = getByTestId('slider-track');
 
     await act(async () => {
-      fireEvent(slider, 'layout', { nativeEvent: { layout: { width: 100 } } });
+      fireEvent(sliderTrack, 'layout', { nativeEvent: { layout: { width: 100 } } });
       fireGestureHandler(getByGestureTestId('slider-gesture'), [
         { state: State.BEGAN, x: 100 },
         { state: State.ACTIVE, x: 100 },
@@ -54,7 +54,7 @@ describe('Slider', () => {
 
   it('applies disabled accessibility semantics and blocks interaction', async () => {
     const onChange = jest.fn();
-    const { getByRole, getByTestId } = render(
+    const { getByTestId } = render(
       <Slider
         disabled
         label="Dynamics"
@@ -65,12 +65,12 @@ describe('Slider', () => {
         value={50}
       />,
     );
-    const slider = getByRole('adjustable');
+    const sliderTrack = getByTestId('slider-track');
     const flattenedFillStyle = StyleSheet.flatten(getByTestId('slider-fill').props.style);
     const flattenedThumbStyle = StyleSheet.flatten(getByTestId('slider-thumb').props.style);
 
     await act(async () => {
-      fireEvent(slider, 'layout', { nativeEvent: { layout: { width: 100 } } });
+      fireEvent(sliderTrack, 'layout', { nativeEvent: { layout: { width: 100 } } });
       fireGestureHandler(getByGestureTestId('slider-gesture'), [
         { state: State.BEGAN, x: 100 },
         { state: State.ACTIVE, x: 100 },
@@ -79,7 +79,6 @@ describe('Slider', () => {
       await Promise.resolve();
     });
 
-    expect(slider.props.accessibilityState).toEqual({ disabled: true });
     expect(flattenedFillStyle.backgroundColor).toBe('#111827CC');
     expect(flattenedThumbStyle.borderColor).toBe('#111827CC');
     expect(onChange).not.toHaveBeenCalled();

@@ -26,9 +26,9 @@ import { getProgressBarPalette, normalizeProgressValue } from './utils';
  * - `style`: optional outer track style overrides merged last.
  * - `testID`: optional stable root identifier used to derive the fill test id.
  * Output:
- * - A themed progress track with a clamped fill width and accessibility metadata.
+ * - A themed progress track with a clamped animated fill width.
  * Logic summary:
- * - Clamps incoming progress values before rendering or exposing accessibility state.
+ * - Clamps incoming progress values before rendering.
  * - Reuses the limited theme token contract for neutral track and semantic fill colors.
  * - Keeps rendering deterministic by expressing fill width as a plain percentage string.
  */
@@ -76,13 +76,6 @@ export function ProgressBar({
 
   return (
     <View
-      accessible
-      accessibilityRole="progressbar"
-      accessibilityValue={{
-        min: 0,
-        max: 100,
-        now: Math.round(normalizedProgress * 100),
-      }}
       style={[
         styles.track,
         {

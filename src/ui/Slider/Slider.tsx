@@ -46,7 +46,7 @@ import {
  * - `testID`: optional stable root identifier used to derive child test ids.
  * - `...rest`: additional React Native `View` props forwarded to the interactive track.
  * Output:
- * - A slider with current value text, themed track/fill/thumb styling, and accessibility metadata.
+ * - A slider with current value text and themed track/fill/thumb styling.
  * Logic summary:
  * - Normalizes incoming values so controlled rendering always matches legal step boundaries.
  * - Measures the track width once layout is known, then maps responder positions back to values.
@@ -232,15 +232,6 @@ export function Slider({
       <GestureDetector gesture={panGesture}>
         <View
           {...rest}
-          accessibilityRole="adjustable"
-          accessibilityState={{ disabled }}
-          accessibilityValue={{
-            min: Math.min(min, max),
-            max: Math.max(min, max),
-            now: normalizedValue,
-            text: `${normalizedValue}`,
-          }}
-          accessible
           onLayout={(event) => {
             const nextTrackWidth = event.nativeEvent.layout.width;
 
