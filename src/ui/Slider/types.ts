@@ -1,0 +1,51 @@
+import type { StyleProp, TextStyle, ViewProps, ViewStyle } from 'react-native';
+
+export type SliderVariant = 'primary' | 'secondary' | 'ghost';
+
+export type SliderProps = Omit<
+  ViewProps,
+  | 'accessible'
+  | 'accessibilityActions'
+  | 'accessibilityElementsHidden'
+  | 'accessibilityHint'
+  | 'accessibilityIgnoresInvertColors'
+  | 'accessibilityLabel'
+  | 'accessibilityLabelledBy'
+  | 'accessibilityLanguage'
+  | 'accessibilityLiveRegion'
+  | 'accessibilityRole'
+  | 'accessibilityShowsLargeContentViewer'
+  | 'accessibilityState'
+  | 'accessibilityValue'
+  | 'accessibilityViewIsModal'
+  | 'onLayout'
+  | 'onAccessibilityAction'
+  | 'onMoveShouldSetResponder'
+  | 'onMoveShouldSetResponderCapture'
+  | 'onResponderEnd'
+  | 'onResponderGrant'
+  | 'onResponderReject'
+  | 'onResponderRelease'
+  | 'onResponderMove'
+  | 'onResponderStart'
+  | 'onResponderTerminate'
+  | 'onResponderTerminationRequest'
+  | 'onShouldBlockNativeResponder'
+  | 'onStartShouldSetResponder'
+  | 'onStartShouldSetResponderCapture'
+  | 'style'
+  | 'testID'
+> & {
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  onChange: (value: number) => void;
+  label?: string;
+  variant?: SliderVariant;
+  disabled?: boolean;
+  style?: StyleProp<ViewStyle>;
+  labelStyle?: StyleProp<TextStyle>;
+  valueStyle?: StyleProp<TextStyle>;
+  testID?: string;
+};

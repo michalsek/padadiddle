@@ -11,9 +11,11 @@ import {
   Heading,
   Icon,
   Link,
+  ProgressBar,
   RadioButton,
   Row,
   Screen,
+  Slider,
   Spacer,
   Spinner,
   Text,
@@ -27,6 +29,8 @@ type StorybookSectionProps = {
 };
 
 const RHYTHM_PARTS = ["Kick", "Snare", "Hi-hat", "Ride"];
+const PRACTICE_TEMPO_MIN = 40;
+const PRACTICE_TEMPO_MAX = 240;
 
 /**
  * Renders a reusable section wrapper for a UI component showcase block.
@@ -73,9 +77,13 @@ function StorybookSection({
 export default function UiStorybookScreen() {
   const styles = useStyles(styleSheet);
   const [isPracticeModeEnabled, setIsPracticeModeEnabled] = useState(true);
+  const [practiceTempo, setPracticeTempo] = useState(120);
   const [selectedSubdivision, setSelectedSubdivision] = useState<
     "quarters" | "eighths" | "triplets"
   >("eighths");
+  const normalizedPracticeProgress =
+    (practiceTempo - PRACTICE_TEMPO_MIN) /
+    (PRACTICE_TEMPO_MAX - PRACTICE_TEMPO_MIN);
 
   return (
     <Screen scrollable contentContainerStyle={styles.content}>
@@ -256,6 +264,87 @@ export default function UiStorybookScreen() {
         <Column gap={8} testID="storybook-link-preview">
           <Link label="Read docs" />
           <Link disabled label="Disabled link" />
+        </Column>
+      </StorybookSection>
+
+      <StorybookSection
+        title="Slider"
+        description="Slider supports bounded value selection with tap or drag interaction and semantic fill variants."
+        testID="storybook-section-slider"
+      >
+        <Column gap={12} testID="storybook-slider-preview">
+          <Column gap={8}>
+            <Text variant="muted">Usage</Text>
+            <Column gap={8} testID="storybook-slider-usage">
+              <Text>Tempo target: {practiceTempo} BPM</Text>
+              <Slider
+                label="Tempo"
+                max={PRACTICE_TEMPO_MAX}
+                min={PRACTICE_TEMPO_MIN}
+                onChange={setPracticeTempo}
+                testID="storybook-slider-control"
+                value={practiceTempo}
+              />
+            </Column>
+          </Column>
+          <Column gap={8}>
+            <Text variant="muted">Variants</Text>
+            <Column gap={10} testID="storybook-slider-variants">
+              <Slider
+                label="Secondary"
+                max={100}
+                min={0}
+                onChange={() => undefined}
+                value={35}
+                variant="secondary"
+              />
+              <Slider
+                label="Ghost"
+                max={100}
+                min={0}
+                onChange={() => undefined}
+                value={70}
+                variant="ghost"
+              />
+              <Slider
+                disabled
+                label="Disabled"
+                max={100}
+                min={0}
+                onChange={() => undefined}
+                value={55}
+              />
+            </Column>
+          </Column>
+        </Column>
+      </StorybookSection>
+
+      <StorybookSection
+        title="ProgressBar"
+        description="ProgressBar visualizes bounded completion values using the same semantic variant language as other controls."
+        testID="storybook-section-progressbar"
+      >
+        <Column gap={12} testID="storybook-progressbar-preview">
+          <Column gap={8}>
+            <Text variant="muted">Usage</Text>
+            <Column gap={8} testID="storybook-progressbar-usage">
+              <Text>
+                Practice completion: {Math.round(normalizedPracticeProgress * 100)}%
+              </Text>
+              <ProgressBar
+                progress={normalizedPracticeProgress}
+                testID="storybook-progressbar-control"
+              />
+            </Column>
+          </Column>
+          <Column gap={8}>
+            <Text variant="muted">Variants</Text>
+            <Column gap={10} testID="storybook-progressbar-variants">
+              <ProgressBar progress={0.35} variant="secondary" />
+              <ProgressBar progress={0.7} variant="ghost" />
+              <ProgressBar progress={1} />
+            </Column>
+          </Column>
         </Column>
       </StorybookSection>
 

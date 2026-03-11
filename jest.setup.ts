@@ -1,3 +1,14 @@
+import 'react-native-gesture-handler/jestSetup';
+
+jest.mock('react-native-worklets', () => require('react-native-worklets/lib/module/mock'));
+jest.mock('react-native-reanimated', () => {
+  const reanimated = require('react-native-reanimated/mock');
+
+  reanimated.default.call = () => undefined;
+
+  return reanimated;
+});
+
 /**
  * Global Jest environment hooks.
  * Input parameters: none.
