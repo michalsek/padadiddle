@@ -231,11 +231,7 @@ export function Slider({
 
   return (
     <Animated.View
-      style={[
-        styles.container,
-        animatedContainerStyle,
-        style,
-      ]}
+      style={[styles.container, animatedContainerStyle, style]}
       testID={testID}
     >
       <View style={styles.header}>
@@ -320,7 +316,7 @@ const styleSheet = createStyleSheet((theme) => ({
     textAlign: "right",
   },
   touchArea: {
-    minHeight: SliderThumbSize,
+    minHeight: SliderThumbSize + SliderThumbBorderWidth * 2,
     justifyContent: "center",
   },
   track: {
