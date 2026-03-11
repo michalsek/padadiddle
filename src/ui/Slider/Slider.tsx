@@ -256,39 +256,41 @@ export function Slider({
       </View>
 
       <GestureDetector gesture={gesture}>
-        <View
-          {...rest}
-          onLayout={(event) => {
-            const nextTrackWidth = event.nativeEvent.layout.width;
+        <View collapsable={false} style={styles.touchArea}>
+          <View
+            {...rest}
+            onLayout={(event) => {
+              const nextTrackWidth = event.nativeEvent.layout.width;
 
-            animatedTrackWidth.value = nextTrackWidth;
-          }}
-          style={[styles.track, { backgroundColor: palette.trackColor }]}
-          testID={testID ? `${testID}-track` : undefined}
-        >
-          <Animated.View
-            pointerEvents="none"
-            style={[
-              styles.fill,
-              {
-                backgroundColor: palette.fillColor,
-              },
-              animatedFillStyle,
-            ]}
-            testID={testID ? `${testID}-fill` : undefined}
-          />
-          <Animated.View
-            pointerEvents="none"
-            style={[
-              styles.thumb,
-              {
-                backgroundColor: palette.thumbColor,
-                borderColor: palette.thumbBorderColor,
-              },
-              animatedThumbStyle,
-            ]}
-            testID={testID ? `${testID}-thumb` : undefined}
-          />
+              animatedTrackWidth.value = nextTrackWidth;
+            }}
+            style={[styles.track, { backgroundColor: palette.trackColor }]}
+            testID={testID ? `${testID}-track` : undefined}
+          >
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.fill,
+                {
+                  backgroundColor: palette.fillColor,
+                },
+                animatedFillStyle,
+              ]}
+              testID={testID ? `${testID}-fill` : undefined}
+            />
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.thumb,
+                {
+                  backgroundColor: palette.thumbColor,
+                  borderColor: palette.thumbBorderColor,
+                },
+                animatedThumbStyle,
+              ]}
+              testID={testID ? `${testID}-thumb` : undefined}
+            />
+          </View>
         </View>
       </GestureDetector>
     </Animated.View>
@@ -316,6 +318,10 @@ const styleSheet = createStyleSheet((theme) => ({
     paddingHorizontal: 0,
     paddingVertical: 0,
     textAlign: "right",
+  },
+  touchArea: {
+    minHeight: SliderThumbSize,
+    justifyContent: "center",
   },
   track: {
     height: SliderTrackHeight,
